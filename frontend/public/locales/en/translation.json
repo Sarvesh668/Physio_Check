@@ -1,0 +1,25 @@
+{
+  "auth": {
+    "login": "Login",
+    "email": "Email Address",
+    "password": "Password",
+    "welcomeBack": "Welcome Back"
+  },
+  "patientDashboard": {
+    "yourPlan": "Your Plan",
+    "analytics": "Analytics"
+  },
+  "workout": {
+    "instructions": "Instructions",
+    "setCompleted": "SET COMPLETED",
+    "nextExercise": "Next Exercise"
+  },
+  "voice": {
+    "correctRep": "Correct rep {{repNumber}}",
+    "incompleteROM": "Incomplete range of motion",
+    "positionLost": "Position lost. Re-align with the yellow guide.",
+    "holdPosition": "Hold position.",
+    "go": "Go!",
+    "starting": "Starting {{exerciseName}}. Please follow the yellow marking to get into the starting position."
+  }
+}

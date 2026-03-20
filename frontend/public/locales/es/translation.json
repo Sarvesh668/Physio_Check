@@ -1,0 +1,117 @@
+{
+  "common": {
+    "fullName": "Nombre Completo",
+    "email": "Correo Electrónico",
+    "age": "Edad",
+    "height": "Altura (cm)",
+    "weight": "Peso (kg)",
+    "cancel": "Cancelar",
+    "saving": "Guardando...",
+    "saveChanges": "Guardar Cambios",
+    "logout": "Cerrar Sesión",
+    "minutesAbbr": "m",
+    "secondsAbbr": "s",
+    "totalReps": "Repeticiones Totales",
+    "correctReps": "Repeticiones Correctas",
+    "accuracy": "Precisión",
+    "duration": "Duración",
+    "week": "Semana",
+    "selectExercise": "Seleccionar Ejercicio",
+    "allExercises": "Todos los Ejercicios",
+    "start": "Comenzar",
+    "years": "años",
+    "connectionError": "Error de conexión"
+  },
+  "nav": {
+    "dashboard": "Panel",
+    "startWorkout": "Iniciar Entrenamiento",
+    "reports": "Informes de Análisis",
+    "messages": "Mensajes",
+    "profile": "Perfil"
+  },
+  "choosePhysio": {
+    "title": "Elige a tu Fisioterapeuta",
+    "subtitle": "Selecciona un experto para guiarte en tu viaje de recuperación.",
+    "searchPlaceholder": "Buscar por nombre...",
+    "loading": "Buscando expertos para ti...",
+    "certifiedPhysio": "Fisioterapeuta Certificado",
+    "linkSuccess": "¡Fisioterapeuta enlazado con éxito!",
+    "linkError": "Error al enlazar el fisioterapeuta"
+  },
+  "onboarding": {
+    "welcome": "Bienvenido a Physio-Check",
+    "subtitle": "Por favor, cuéntanos más sobre ti para personalizar tu experiencia.",
+    "referredBy": "Referido Por",
+    "referredPlaceholder": "Nombre del médico o clínica",
+    "failed": "El registro falló"
+  },
+  "profile": {
+    "title": "Configuración de Perfil",
+    "subtitle": "Administra tu información de cuenta y preferencias",
+    "changeAvatar": "Cambiar Avatar",
+    "security": "Seguridad",
+    "changePassword": "Cambiar Contraseña",
+    "editBtn": "Editar Perfil",
+    "updateSuccess": "¡Perfil actualizado con éxito!",
+    "updateFailed": "Error al actualizar el perfil"
+  },
+  "analysis": {
+    "avgAccuracyTitle": "Precisión Promedio (Últimos 7)",
+    "avgAccuracySub": "Basado en el rendimiento reciente",
+    "totalTrainingTimeTitle": "Tiempo Total de Entrenamiento",
+    "totalTrainingTimeSub": "Volumen de ejercicio histórico",
+    "progressionTrendTitle": "Tendencia de Progresión",
+    "progressionTrendSub": "Aumento de reps (Primero vs Último)",
+    "completedSessionsTitle": "Sesiones Completadas",
+    "completedSessionsSub": "Total de sesiones registradas",
+    "confirmClearData": "¿Estás seguro de que deseas borrar todo el historial de entrenamiento?",
+    "loading": "Cargando datos de análisis...",
+    "noSessions": "Aún no se han registrado sesiones.",
+    "noSessionsSub": "Las sesiones realizadas por el paciente aparecerán aquí para su análisis cinemático.",
+    "performanceTitle": "Análisis de Rendimiento",
+    "performanceSub": "Retroalimentación cinemática para monitoreo de recuperación",
+    "clearAllData": "Borrar Todos los Datos"
+  },
+  "workoutSummary": {
+    "complete": "¡Entrenamiento Completo!",
+    "successSubtitle": "Has completado con éxito {{name}}",
+    "performanceTitle": "Retroalimentación de Rendimiento",
+    "performanceExcellent": "¡Excelente trabajo! Tu forma fue sobresaliente.",
+    "performanceGreat": "¡Gran trabajo! Sigue enfocándote en tu técnica.",
+    "performanceGood": "¡Buen esfuerzo! La práctica mejorará tu forma.",
+    "performanceKeepPracticing": "¡Sigue practicando! Concéntrate en las indicaciones de postura.",
+    "excellentForm": "Forma Excelente"
+  },
+  "messages": {
+    "initFailed": "Error al inicializar el chat",
+    "unauthorized": "Acceso no autorizado a la sala de chat",
+    "syncFailed": "Error al sincronizar mensajes",
+    "sendFailed": "Error al enviar el mensaje",
+    "noPhysioTitle": "Ningún Fisioterapeuta Asignado",
+    "noPhysioSub": "Por favor, elige un fisioterapeuta para empezar a chatear.",
+    "choosePhysioBtn": "Elegir Fisioterapeuta",
+    "yourPhysio": "Tu Fisioterapeuta",
+    "noMessages": "Aún no hay mensajes. ¡Di hola!"
+  },
+  "physioDashboard": {
+    "totalPatients": "Total de Pacientes",
+    "uploadingVideo": "Subiendo video para {{name}}...",
+    "uploadFailed": "Error al subir video para {{name}}.",
+    "selectOneExercise": "Por favor, seleccione al menos un ejercicio"
+  },
+  "physioMessages": {
+    "conversationsTitle": "Conversaciones de Pacientes",
+    "noLinkedPatients": "No se encontraron pacientes enlazados.",
+    "loadPatientsFailed": "Error al cargar pacientes"
+  },
+  "tracker": {
+    "currentAngle": "Ángulo Actual",
+    "initializing": "Inicializando cámara y detección de pose...",
+    "state": {
+      "waiting": "esperando",
+      "outbound": "saliendo",
+      "inbound": "entrando",
+      "flexing": "flexionando"
+    }
+  }
+}

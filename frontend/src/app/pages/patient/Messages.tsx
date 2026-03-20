@@ -1,4 +1,6 @@
+//E:\techfiesta_final\Physio_Check\frontend\src\app\pages\patient\Messages.tsx
 import React, { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { PatientLayout } from '../../components/layouts/PatientLayout';
 import { Card } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
@@ -18,6 +20,7 @@ interface Message {
 }
 
 export function Messages() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
@@ -44,21 +47,21 @@ export function Messages() {
         }
       } catch (err) {
         console.error('Error initializing chat:', err);
-        toast.error('Failed to initialize chat');
+        toast.error(t('messages.initFailed', 'Failed to initialize chat'));
       } finally {
         setLoading(false);
       }
     };
 
     initializeChat();
-  }, [user]);
+  }, [user, t]);
 
   useEffect(() => {
     if (!chatId || !user) return;
 
     // Verify privacy: roomId must contain user.id
     if (!chatId.includes(user.id)) {
-        toast.error("Unauthorized access to chat room");
+        toast.error(t('messages.unauthorized', 'Unauthorized access to chat room'));
         return;
     }
 
@@ -71,11 +74,11 @@ export function Messages() {
       setMessages(msgs);
     }, (error) => {
       console.error("Error listening to messages:", error);
-      toast.error("Failed to sync messages");
+      toast.error(t('messages.syncFailed', 'Failed to sync messages'));
     });
 
     return () => unsubscribe();
-  }, [chatId, user?.id]);
+  }, [chatId, user?.id, t]);
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -101,7 +104,7 @@ export function Messages() {
       });
     } catch (err) {
       console.error('Error sending message:', err);
-      toast.error('Failed to send message');
+      toast.error(t('messages.sendFailed', 'Failed to send message'));
     }
   };
 
@@ -120,9 +123,9 @@ export function Messages() {
           <PatientLayout>
               <div className="flex flex-col items-center justify-center h-[calc(100vh-16rem)] text-center">
                   <User className="w-16 h-16 text-muted-foreground/30 mb-4" />
-                  <h2 className="text-xl font-bold mb-2">No Physiotherapist Assigned</h2>
-                  <p className="text-muted-foreground">Please choose a physiotherapist to start chatting.</p>
-                  <Button className="mt-4" onClick={() => window.location.href = '/choose-physio'}>Choose Physiotherapist</Button>
+                  <h2 className="text-xl font-bold mb-2">{t('messages.noPhysioTitle', 'No Physiotherapist Assigned')}</h2>
+                  <p className="text-muted-foreground">{t('messages.noPhysioSub', 'Please choose a physiotherapist to start chatting.')}</p>
+                  <Button className="mt-4" onClick={() => window.location.href = '/choose-physio'}>{t('messages.choosePhysioBtn', 'Choose Physiotherapist')}</Button>
               </div>
           </PatientLayout>
       );
@@ -144,8 +147,8 @@ export function Messages() {
                     P
                   </div>
                   <div>
-                    <p className="font-medium">Your Physiotherapist</p>
-                    <p className="text-xs text-green-600">Online</p>
+                    <p className="font-medium">{t('messages.yourPhysio', 'Your Physiotherapist')}</p>
+                    <p className="text-xs text-green-600">{t('common.online', 'Online')}</p>
                   </div>
                 </div>
               </div>
@@ -157,7 +160,7 @@ export function Messages() {
                     </div>
                 ) : messages.length === 0 ? (
                     <div className="text-center py-10 text-muted-foreground">
-                        No messages yet. Say hi!
+                        {t('messages.noMessages', 'No messages yet. Say hi!')}
                     </div>
                 ) : messages.map((message, index) => (
                   <motion.div
@@ -189,7 +192,7 @@ export function Messages() {
                   <Input
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
-                    placeholder="Type your message..."
+                    placeholder={t('messages.typePlaceholder', 'Type your message...')}
                     className="flex-1"
                   />
                   <Button type="submit" className="bg-primary hover:bg-primary/90">

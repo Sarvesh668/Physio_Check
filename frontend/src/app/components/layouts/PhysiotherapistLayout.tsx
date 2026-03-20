@@ -1,5 +1,6 @@
 import React, { useState, ReactNode } from 'react';
 import { useNavigate, useLocation } from 'react-router';
+import { useTranslation } from 'react-i18next'; // Added i18n hook
 import { useAuth } from '../../context/AuthContext';
 import { 
   Home, 
@@ -22,19 +23,21 @@ interface NavItem {
   icon: React.ElementType;
 }
 
-const navItems: NavItem[] = [
-  { label: 'Dashboard', path: '/physiotherapist/dashboard', icon: Home },
-  { label: 'My Patients', path: '/physiotherapist/patients', icon: Users },
-  { label: 'Messages', path: '/physiotherapist/messages', icon: MessageSquare },
-  { label: 'Profile', path: '/physiotherapist/profile', icon: User }
-];
-
 export function PhysiotherapistLayout({ children }: PhysiotherapistLayoutProps) {
+  const { t } = useTranslation(); // Initialize translation hook
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Moved navItems inside the component so it has access to the 't' function
+  const navItems: NavItem[] = [
+    { label: t('nav.dashboard', 'Dashboard'), path: '/physiotherapist/dashboard', icon: Home },
+    { label: t('nav.myPatients', 'My Patients'), path: '/physiotherapist/patients', icon: Users },
+    { label: t('nav.messages', 'Messages'), path: '/physiotherapist/messages', icon: MessageSquare },
+    { label: t('nav.profile', 'Profile'), path: '/physiotherapist/profile', icon: User }
+  ];
 
   const handleLogout = () => {
     logout();
@@ -85,6 +88,7 @@ export function PhysiotherapistLayout({ children }: PhysiotherapistLayoutProps) 
                 setMobileMenuOpen={setMobileMenuOpen}
                 user={user}
                 handleLogout={handleLogout}
+                t={t} // Pass translation function down to MobileNav
               />
             </motion.div>
           </>
@@ -155,14 +159,14 @@ export function PhysiotherapistLayout({ children }: PhysiotherapistLayoutProps) 
               >
                 <p className="text-sm font-medium text-sidebar-foreground truncate">{user.name}</p>
                 <p className="text-xs text-muted-foreground truncate">{user.email}</p>
-                <p className="text-xs text-primary mt-1">Physiotherapist</p>
+                <p className="text-xs text-primary mt-1">{t('common.physiotherapistRole', 'Physiotherapist')}</p>
               </motion.div>
             )}
             
             <button
               onClick={handleLogout}
               className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-destructive/10 text-destructive transition-all"
-              title={!sidebarOpen ? 'Logout' : undefined}
+              title={!sidebarOpen ? t('common.logout', 'Logout') : undefined}
             >
               <LogOut className="w-5 h-5 flex-shrink-0" />
               {sidebarOpen && (
@@ -171,7 +175,7 @@ export function PhysiotherapistLayout({ children }: PhysiotherapistLayoutProps) 
                   animate={{ opacity: 1 }}
                   className="text-sm font-medium"
                 >
-                  Logout
+                  {t('common.logout', 'Logout')}
                 </motion.span>
               )}
             </button>
@@ -207,7 +211,8 @@ function MobileNav({
   navigate, 
   setMobileMenuOpen, 
   user, 
-  handleLogout 
+  handleLogout,
+  t
 }: {
   navItems: NavItem[];
   isActive: (path: string) => boolean;
@@ -215,6 +220,7 @@ function MobileNav({
   setMobileMenuOpen: (open: boolean) => void;
   user: any;
   handleLogout: () => void;
+  t: any; // Accept translation function
 }) {
   return (
     <div className="flex flex-col h-full">
@@ -228,7 +234,7 @@ function MobileNav({
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium truncate">{user.name}</p>
               <p className="text-xs text-muted-foreground truncate">{user.email}</p>
-              <p className="text-xs text-primary mt-0.5">Physiotherapist</p>
+              <p className="text-xs text-primary mt-0.5">{t('common.physiotherapistRole', 'Physiotherapist')}</p>
             </div>
           </div>
         </div>
@@ -267,7 +273,7 @@ function MobileNav({
           className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-destructive/10 text-destructive transition-all font-medium"
         >
           <LogOut className="w-5 h-5" />
-          <span className="text-sm">Logout</span>
+          <span className="text-sm">{t('common.logout', 'Logout')}</span>
         </button>
       </div>
     </div>

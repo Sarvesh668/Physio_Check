@@ -1,6 +1,7 @@
-//E:\techfiesta_final\Physio_Check\frontend\src\app\pages\patient\WorkoutScreen.tsx
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../../i18n';
 import { FilesetResolver, PoseLandmarker } from '@mediapipe/tasks-vision';
 import * as faceapi from 'face-api.js';
 
@@ -71,7 +72,7 @@ export class PhysioTracker {
   public canStart: boolean = false;
   public currentRepFailed: boolean = false;
   public failureReason: string = "";
-  public feedbackMessage: string = "Position Yourself";
+  public feedbackMessage: string = i18n.t('workout.feedback.positionYourself', 'Position Yourself');
   
   public totalReps: number = 0;
   public correctReps: number = 0;
@@ -232,9 +233,9 @@ export class PhysioTracker {
 
               if (this.angleDiff(bodyAngle, this.refData.reference_alignment_angle) > this.positioningTolerance) {
                   this.canStart = false;
-                  const dirStr = bodyAngle > this.refData.reference_alignment_angle ? "UP" : "DOWN";
-                  this.feedbackMessage = `Adjust shoulders ${dirStr}`;
-                  this.speakAlert(`Adjust shoulders ${dirStr}`);
+                  const dirStr = bodyAngle > this.refData.reference_alignment_angle ? i18n.t('common.up', "UP") : i18n.t('common.down', "DOWN");
+                  this.feedbackMessage = `${i18n.t('workout.feedback.adjustShoulders', 'Adjust shoulders')} ${dirStr}`;
+                  this.speakAlert(`${i18n.t('workout.feedback.adjustShoulders', 'Adjust shoulders')} ${dirStr}`);
               } else {
                   const distToStart = Math.hypot(
                       this.angleDiff(smoothKinematics[0], this.refData.baseline_kinematics[0] as number),
@@ -242,11 +243,11 @@ export class PhysioTracker {
                   );
                   if (distToStart > this.startPoseTolerance) {
                       this.canStart = false;
-                      this.feedbackMessage = "Return to starting position";
-                      if (this.isWorkoutActive) this.speakAlert("Return to starting position");
+                      this.feedbackMessage = i18n.t('workout.feedback.returnToStart', "Return to starting position");
+                      if (this.isWorkoutActive) this.speakAlert(i18n.t('workout.feedback.returnToStart', "Return to starting position"));
                   } else {
                       this.canStart = true;
-                      this.feedbackMessage = "Ready - Start Exercise";
+                      this.feedbackMessage = i18n.t('workout.feedback.ready', "Ready - Start Exercise");
                   }
               }
           }
@@ -266,7 +267,7 @@ export class PhysioTracker {
                       this.repKinematics = [smoothKinematics];
                       this.currentRepFailed = false;
                       this.failureReason = "";
-                      this.feedbackMessage = "Moving Outbound...";
+                      this.feedbackMessage = i18n.t('workout.feedback.movingOutbound', "Moving Outbound...");
                   }
               } else if (this.state === "OUTBOUND" || this.state === "INBOUND") {
                   this.repKinematics.push(smoothKinematics);
@@ -282,22 +283,22 @@ export class PhysioTracker {
 
                   if (minDistToRef > this.tunnelTolerance && !this.currentRepFailed) {
                       this.currentRepFailed = true;
-                      this.failureReason = "Form Break Detected";
+                      this.failureReason = i18n.t('workout.feedback.formBreak', "Form Break Detected");
                       this.faultStartTime = performance.now();
                       this.spokenMidRep = false;
-                      this.feedbackMessage = "REP FAILED - RETURN TO START";
+                      this.feedbackMessage = i18n.t('workout.feedback.repFailed', "REP FAILED - RETURN TO START");
                   }
 
                   if (this.state === "OUTBOUND" && progress > 0.85) {
                       this.state = "INBOUND";
-                      this.feedbackMessage = "Moving Inbound...";
+                      this.feedbackMessage = i18n.t('workout.feedback.movingInbound', "Moving Inbound...");
                   } else if (progress < 0.25 && (this.state === "INBOUND" || this.currentRepFailed)) {
                       this.evaluateCompletedRep();
                   }
 
                   if (this.currentRepFailed && this.faultStartTime !== null && !this.spokenMidRep) {
                       if ((performance.now() - this.faultStartTime) > 1000) {
-                          this.speakAlert(this.failureReason || "Incorrect movement");
+                          this.speakAlert(this.failureReason || i18n.t('workout.feedback.incorrectMovement', "Incorrect movement"));
                           this.spokenMidRep = true;
                       }
                   }
@@ -323,23 +324,23 @@ export class PhysioTracker {
               isCorrect = false;
           } else if (repMaxProgress < 0.85) {
               isCorrect = false;
-              this.failureReason = "Didn't extend fully to target";
+              this.failureReason = i18n.t('workout.feedback.didntExtendFully', "Didn't extend fully to target");
           } else if (dtwDeviation > this.dtwThreshold) {
               isCorrect = false;
-              this.failureReason = "Jittery or incorrect trajectory";
+              this.failureReason = i18n.t('workout.feedback.jitteryTrajectory', "Jittery or incorrect trajectory");
           }
 
           this.totalReps++;
           if (isCorrect) {
               this.correctReps++;
-              this.feedbackMessage = `CORRECT! Quality: ${qualityScore.toFixed(0)}`;
-              this.speakAlert("Correct");
+              this.feedbackMessage = `${i18n.t('workout.feedback.correct', 'CORRECT!')} ${i18n.t('workout.feedback.quality', 'Quality')}: ${qualityScore.toFixed(0)}`;
+              this.speakAlert(i18n.t('workout.feedback.correctVoice', 'Correct'));
               this.flashCounter = 15;
               this.currentFlashColor = "rgba(0, 255, 0, 0.6)"; 
           } else {
               this.wrongReps++;
-              this.feedbackMessage = `FAILED: ${this.failureReason}`;
-              this.speakAlert(this.failureReason || "Incorrect rep");
+              this.feedbackMessage = `${i18n.t('workout.feedback.failed', 'FAILED')}: ${this.failureReason}`;
+              this.speakAlert(this.failureReason || i18n.t('workout.feedback.incorrectRep', "Incorrect rep"));
               this.flashCounter = 15;
               this.currentFlashColor = "rgba(255, 0, 0, 0.6)"; 
           }
@@ -387,6 +388,7 @@ import { handleExerciseCompletion, SessionSummary } from '../../services/workout
 // ==========================================
 
 export function WorkoutScreen() {
+  const { t } = useTranslation();
 
   // ==========================================
   // ⚙️ MANUAL THRESHOLD SETTINGS ⚙️
@@ -421,7 +423,7 @@ export function WorkoutScreen() {
   
   const [trackerUIState, setTrackerUIState] = useState<TrackerState>({
     status: "WAITING", canStart: false, currentRepFailed: false,
-    failureReason: "", feedbackMessage: "Initializing camera...",
+    failureReason: "", feedbackMessage: t('common.initializingCamera', "Initializing camera..."),
     totalReps: 0, correctReps: 0, wrongReps: 0, accuracy: 0, flashColor: null,
     isDiscomfortPaused: false, painScore: 0
   });
@@ -463,7 +465,7 @@ export function WorkoutScreen() {
       
       setTrackerUIState({
           status: "WAITING", canStart: false, currentRepFailed: false,
-          failureReason: "", feedbackMessage: "Initializing camera...",
+          failureReason: "", feedbackMessage: t('common.initializingCamera', "Initializing camera..."),
           totalReps: 0, correctReps: 0, wrongReps: 0, accuracy: 0, flashColor: null,
           isDiscomfortPaused: false, painScore: 0
       });
@@ -472,7 +474,7 @@ export function WorkoutScreen() {
           referenceVideoRef.current.pause();
           referenceVideoRef.current.currentTime = 0;
       }
-  }, [exerciseId]);
+  }, [exerciseId, t]);
 
   useEffect(() => {
       if (trackerRef.current) trackerRef.current.isVoiceEnabled = voiceEnabled;
@@ -490,9 +492,9 @@ export function WorkoutScreen() {
           setWorkoutPhase('COUNTDOWN');
       } else if (workoutPhase === 'COUNTDOWN' && !trackerUIState.canStart) {
           setWorkoutPhase('ALIGNING');
-          getVoiceFeedback().announce("Position lost. Re-align with the yellow guide.");
+          getVoiceFeedback().announce(t('workout.feedback.positionLost', "Position lost. Re-align with the yellow guide."));
       }
-  }, [workoutPhase, trackerUIState.canStart, trackerUIState.currentRepFailed, trackerUIState.isDiscomfortPaused]);
+  }, [workoutPhase, trackerUIState.canStart, trackerUIState.currentRepFailed, trackerUIState.isDiscomfortPaused, t]);
 
   // ==========================================
   // PHASE 1.5: THE ISOLATED COUNTDOWN LOOP
@@ -503,7 +505,7 @@ export function WorkoutScreen() {
       if (workoutPhase === 'COUNTDOWN') {
           let count = 3;
           setCountdownVal(count);
-          getVoiceFeedback().announce("Hold position. 3");
+          getVoiceFeedback().announce(t('workout.feedback.holdPosition', "Hold position. 3"));
           
           interval = setInterval(() => {
               count--;
@@ -513,7 +515,7 @@ export function WorkoutScreen() {
               } else {
                   clearInterval(interval);
                   setWorkoutPhase('EXERCISING');
-                  getVoiceFeedback().announce("Go!");
+                  getVoiceFeedback().announce(t('workout.feedback.go', "Go!"));
                   if (referenceVideoRef.current) referenceVideoRef.current.play(); 
               }
           }, 1000);
@@ -522,7 +524,7 @@ export function WorkoutScreen() {
       return () => {
           if (interval) clearInterval(interval);
       };
-  }, [workoutPhase]);
+  }, [workoutPhase, t]);
 
   // ==========================================
   // PHASE 2: FAILED REP VIDEO RESET & RESUME
@@ -537,13 +539,13 @@ export function WorkoutScreen() {
       } else if (!trackerUIState.currentRepFailed && wasFailed.current && trackerUIState.canStart) {
           wasFailed.current = false;
           if (workoutPhase === 'EXERCISING') {
-              getVoiceFeedback().announce("Resume");
+              getVoiceFeedback().announce(t('workout.feedback.resume', "Resume"));
               setShowResumeFlash(true);
               setTimeout(() => setShowResumeFlash(false), 1500);
               if (referenceVideoRef.current) referenceVideoRef.current.play();
           }
       }
-  }, [trackerUIState.currentRepFailed, trackerUIState.canStart, workoutPhase]);
+  }, [trackerUIState.currentRepFailed, trackerUIState.canStart, workoutPhase, t]);
 
   // ==========================================
   // PHASE 3: SET COMPLETION
@@ -555,11 +557,11 @@ export function WorkoutScreen() {
           if (referenceVideoRef.current) referenceVideoRef.current.pause();
           
           const audioInstruction = hasNextExercise 
-              ? "Set completed. Excellent work! Please select an option on screen to continue." 
-              : "Workout completed. Excellent work! Please select view summary.";
+              ? t('workout.feedback.setCompleted', "Set completed. Excellent work! Please select an option on screen to continue.") 
+              : t('workout.feedback.workoutCompleted', "Workout completed. Excellent work! Please select view summary.");
           getVoiceFeedback().announce(audioInstruction);
       }
-  }, [trackerUIState.correctReps, workoutPhase, hasNextExercise]);
+  }, [trackerUIState.correctReps, workoutPhase, hasNextExercise, t]);
 
   useEffect(() => {
     const loadFaceModels = async () => {
@@ -596,7 +598,7 @@ export function WorkoutScreen() {
       if (poseLandmarkerRef.current) poseLandmarkerRef.current.close();
       if (requestRef.current) cancelAnimationFrame(requestRef.current);
     };
-  }, [exerciseConfig]);
+  }, [exerciseConfig, voiceEnabled]);
 
   useEffect(() => {
     if (!isActive || isPaused || !faceModelsLoaded || trackerUIState.isDiscomfortPaused || workoutPhase === 'SET_COMPLETED') return;
@@ -624,7 +626,7 @@ export function WorkoutScreen() {
                         if (consecutivePainFramesRef.current >= PAIN_FRAMES_REQUIRED) {
                             trackerRef.current.isDiscomfortPaused = true;
                             trackerRef.current.currentPainScore = painScore;
-                            trackerRef.current.speakAlert("I noticed you might be in discomfort. Are you alright? Please show a thumbs up to continue, or a thumbs down to stop the workout.", true);
+                            trackerRef.current.speakAlert(t('workout.feedback.discomfortDetected', "I noticed you might be in discomfort. Are you alright? Please show a thumbs up to continue, or a thumbs down to stop the workout."), true);
                             if (referenceVideoRef.current) referenceVideoRef.current.pause(); 
                             
                             setTrackerUIState(trackerRef.current.getCurrentState());
@@ -642,18 +644,18 @@ export function WorkoutScreen() {
     }, PAIN_POLL_RATE_MS); 
 
     return () => clearInterval(interval);
-  }, [isActive, isPaused, faceModelsLoaded, trackerUIState.isDiscomfortPaused, PAIN_FRAMES_REQUIRED, PAIN_SCORE_THRESHOLD, workoutPhase]);
+  }, [isActive, isPaused, faceModelsLoaded, trackerUIState.isDiscomfortPaused, PAIN_FRAMES_REQUIRED, PAIN_SCORE_THRESHOLD, workoutPhase, t]);
 
   const handlePainResume = useCallback(() => {
       if (trackerRef.current) {
           trackerRef.current.isDiscomfortPaused = false;
           trackerRef.current.currentPainScore = 0;
-          trackerRef.current.speakAlert("Resuming exercise.", true);
+          trackerRef.current.speakAlert(t('workout.feedback.resumingExercise', "Resuming exercise."), true);
           gestureFramesRef.current = 0;
           if (referenceVideoRef.current && workoutPhase === 'EXERCISING') referenceVideoRef.current.play(); 
           setTrackerUIState(trackerRef.current.getCurrentState());
       }
-  }, [workoutPhase]);
+  }, [workoutPhase, t]);
 
   const handleStop = useCallback(async () => {
     setIsActive(false);
@@ -697,7 +699,6 @@ export function WorkoutScreen() {
           navigate(currentPath.replace(exerciseId as string, nextId));
       }
   }, [hasNextExercise, currentIndex, exerciseId, navigate]);
-
 
   const processVideo = useCallback(async () => {
     if (!videoRef.current || !canvasRef.current || !poseLandmarkerRef.current || !trackerRef.current || isPaused) {
@@ -799,9 +800,9 @@ export function WorkoutScreen() {
                                   ctx.beginPath(); ctx.strokeStyle = "rgba(255, 255, 0, 0.4)"; ctx.lineWidth = 16; ctx.lineCap = "round";
                                   ctx.moveTo(target1X, target1Y); ctx.lineTo(target2X, target2Y); ctx.stroke(); 
                                   ctx.beginPath(); ctx.fillStyle = "rgba(255, 255, 0, 0.7)"; ctx.arc(target2X, target2Y, 12, 0, 2 * Math.PI); ctx.fill();
-                                  ctx.fillStyle = "yellow"; ctx.font = "bold 20px sans-serif"; ctx.fillText("START HERE \u2190", target2X + 20, target2Y);
+                                  ctx.fillStyle = "yellow"; ctx.font = "bold 20px sans-serif"; ctx.fillText(`${t('workout.startHere', 'START HERE')} \u2190`, target2X + 20, target2Y);
                               } else {
-                                  ctx.fillStyle = "yellow"; ctx.font = "bold 20px sans-serif"; ctx.fillText("START HERE \u2190", target1X + 20, target1Y);
+                                  ctx.fillStyle = "yellow"; ctx.font = "bold 20px sans-serif"; ctx.fillText(`${t('workout.startHere', 'START HERE')} \u2190`, target1X + 20, target1Y);
                               }
                           }
                       }
@@ -876,7 +877,7 @@ export function WorkoutScreen() {
               
               ctx.beginPath(); ctx.strokeStyle = boxColor; ctx.lineWidth = 3; ctx.rect(bx, by, bw, bh); ctx.stroke();
               ctx.fillStyle = boxColor; ctx.font = "bold 18px monospace";
-              ctx.fillText(isPain ? `DISCOMFORT (${tracker.latestPainScore.toFixed(0)}%)` : `Comfortable (${tracker.latestPainScore.toFixed(0)}%)`, bx, by - 10);
+              ctx.fillText(isPain ? `${t('workout.discomfort', 'DISCOMFORT')} (${tracker.latestPainScore.toFixed(0)}%)` : `${t('workout.comfortable', 'Comfortable')} (${tracker.latestPainScore.toFixed(0)}%)`, bx, by - 10);
 
               if (isPain && !tracker.isDiscomfortPaused) {
                   const fillWidth = (consecutivePainFramesRef.current / PAIN_FRAMES_REQUIRED) * bw;
@@ -902,7 +903,7 @@ export function WorkoutScreen() {
       }
     } catch (err) { }
     requestRef.current = requestAnimationFrame(processVideo);
-  }, [isPaused, exerciseConfig, handlePainResume, handleStop, PAIN_FRAMES_REQUIRED, PAIN_SCORE_THRESHOLD, GESTURE_FRAMES_REQUIRED, workoutPhase]);
+  }, [isPaused, exerciseConfig, handlePainResume, handleStop, PAIN_FRAMES_REQUIRED, PAIN_SCORE_THRESHOLD, GESTURE_FRAMES_REQUIRED, workoutPhase, t]);
 
   useEffect(() => {
     if (!isActive || isPaused || !startTime || trackerUIState.isDiscomfortPaused || workoutPhase === 'SET_COMPLETED') return;
@@ -939,31 +940,31 @@ export function WorkoutScreen() {
   const handleStart = () => { 
       setIsActive(true); 
       setStartTime(Date.now()); 
-      getVoiceFeedback().announce(`Starting ${exerciseConfig?.name}. Please follow the yellow marking to get into the starting position.`); 
+      getVoiceFeedback().announce(t('workout.startingExercise', `Starting {{name}}. Please follow the yellow marking to get into the starting position.`, { name: t(`exercises.${exerciseConfig?.id}.name`, exerciseConfig?.name) })); 
   };
   const handlePause = () => { setIsPaused(true); if (referenceVideoRef.current) referenceVideoRef.current.pause(); };
   const handleAppResume = () => { setIsPaused(false); if (startTime) setStartTime(Date.now() - durationRef.current * 1000); if (workoutPhase === 'EXERCISING' && referenceVideoRef.current) referenceVideoRef.current.play(); };
   const toggleVoice = () => setVoiceEnabled(!voiceEnabled);
   const formatDuration = (seconds: number) => { const mins = Math.floor(seconds / 60); const secs = seconds % 60; return `${mins}:${secs.toString().padStart(2, '0')}`; };
 
-  if (!exerciseConfig) return <div className="min-h-screen flex items-center justify-center bg-background"><p>Exercise not found</p></div>;
+  if (!exerciseConfig) return <div className="min-h-screen flex items-center justify-center bg-background"><p>{t('workout.exerciseNotFound', 'Exercise not found')}</p></div>;
 
   if (!isActive) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="max-w-2xl w-full">
           <Card className="p-8">
-            <h2 className="text-2xl mb-4">{exerciseConfig.name}</h2>
-            <p className="text-muted-foreground mb-6">{exerciseConfig.description}</p>
+            <h2 className="text-2xl mb-4">{t(`exercises.${exerciseConfig.id}.name`, exerciseConfig.name)}</h2>
+            <p className="text-muted-foreground mb-6">{t(`exercises.${exerciseConfig.id}.description`, exerciseConfig.description)}</p>
             <div className="space-y-6 mb-8">
               <div>
-                <h3 className="mb-3">Instructions</h3>
-                <ol className="space-y-2">{exerciseConfig.instructions.map((ins, i) => (<li key={i} className="flex gap-3 text-sm"><span className="flex-shrink-0 w-6 h-6 bg-primary/10 text-primary rounded-full flex items-center justify-center text-sm">{i + 1}</span>{ins}</li>))}</ol>
+                <h3 className="mb-3">{t('workout.instructionsTitle', 'Instructions')}</h3>
+                <ol className="space-y-2">{exerciseConfig.instructions.map((ins, i) => (<li key={i} className="flex gap-3 text-sm"><span className="flex-shrink-0 w-6 h-6 bg-primary/10 text-primary rounded-full flex items-center justify-center text-sm">{i + 1}</span>{t(`exercises.${exerciseConfig.id}.instruction${i}`, ins)}</li>))}</ol>
               </div>
             </div>
             <div className="flex gap-4">
-              <Button onClick={handleStart} className="flex-1 h-12 bg-primary"><Camera className="w-5 h-5 mr-2" /> Start Exercise</Button>
-              <Button onClick={() => navigate('/start-workout')} variant="outline" className="h-12">Cancel</Button>
+              <Button onClick={handleStart} className="flex-1 h-12 bg-primary"><Camera className="w-5 h-5 mr-2" /> {t('workout.startBtn', 'Start Exercise')}</Button>
+              <Button onClick={() => navigate('/start-workout')} variant="outline" className="h-12">{t('common.cancel', 'Cancel')}</Button>
             </div>
           </Card>
         </motion.div>
@@ -997,7 +998,7 @@ export function WorkoutScreen() {
       <AnimatePresence>
           {showResumeFlash && (
               <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.2 }} className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-40">
-                  <span className="text-6xl font-bold text-green-500 drop-shadow-[0_0_20px_rgba(0,255,0,0.8)] tracking-widest uppercase">RESUME</span>
+                  <span className="text-6xl font-bold text-green-500 drop-shadow-[0_0_20px_rgba(0,255,0,0.8)] tracking-widest uppercase">{t('workout.resume', 'RESUME')}</span>
               </motion.div>
           )}
       </AnimatePresence>
@@ -1007,12 +1008,12 @@ export function WorkoutScreen() {
         {workoutPhase === 'SET_COMPLETED' && (
            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 z-40 flex flex-col items-center justify-center bg-black/80 backdrop-blur-md border-8 border-green-600">
                <CheckCircle className="text-green-500 w-24 h-24 mb-4" />
-               <h1 className="text-6xl font-bold text-green-500 mb-2 drop-shadow-2xl text-center uppercase">SET COMPLETED</h1>
-               <p className="text-2xl text-white font-semibold mb-8 text-center uppercase">Great job! You finished {REPS_PER_SET} reps.</p>
+               <h1 className="text-6xl font-bold text-green-500 mb-2 drop-shadow-2xl text-center uppercase">{t('workout.setCompletedTitle', 'SET COMPLETED')}</h1>
+               <p className="text-2xl text-white font-semibold mb-8 text-center uppercase">{t('workout.setCompletedSub', `Great job! You finished {{count}} reps.`, { count: REPS_PER_SET })}</p>
 
                <div className="flex gap-6 mt-4">
-                   {hasNextExercise && <Button onClick={handleNextExercise} size="lg" className="bg-green-600 hover:bg-green-500 h-16 px-8 text-xl rounded-2xl">Next Exercise</Button>}
-                   <Button onClick={handleStop} size="lg" variant="destructive" className="h-16 px-8 text-xl rounded-2xl">View Summary</Button>
+                   {hasNextExercise && <Button onClick={handleNextExercise} size="lg" className="bg-green-600 hover:bg-green-500 h-16 px-8 text-xl rounded-2xl">{t('workout.nextExerciseBtn', 'Next Exercise')}</Button>}
+                   <Button onClick={handleStop} size="lg" variant="destructive" className="h-16 px-8 text-xl rounded-2xl">{t('workout.viewSummaryBtn', 'View Summary')}</Button>
                </div>
            </motion.div>
         )}
@@ -1023,30 +1024,30 @@ export function WorkoutScreen() {
         {trackerUIState.isDiscomfortPaused && (
            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 z-40 flex flex-col items-center justify-center bg-black/40 backdrop-blur-sm border-8 border-red-600">
                <AlertTriangle className="text-red-500 w-24 h-24 mb-4 animate-pulse" />
-               <h1 className="text-6xl font-bold text-red-500 mb-2 drop-shadow-2xl text-center uppercase">PAUSED</h1>
-               <p className="text-2xl text-white font-semibold mb-8 text-center uppercase">Are you alright?</p>
+               <h1 className="text-6xl font-bold text-red-500 mb-2 drop-shadow-2xl text-center uppercase">{t('workout.pausedTitle', 'PAUSED')}</h1>
+               <p className="text-2xl text-white font-semibold mb-8 text-center uppercase">{t('workout.areYouAlright', 'Are you alright?')}</p>
                
                <div className="bg-red-900/50 border border-red-500/50 px-6 py-3 rounded-full mb-8">
-                   <p className="text-red-300 font-mono">PAIN SCORE: {trackerUIState.painScore.toFixed(0)}%</p>
+                   <p className="text-red-300 font-mono">{t('workout.painScore', 'PAIN SCORE')}: {trackerUIState.painScore.toFixed(0)}%</p>
                </div>
 
                <div className="flex gap-12 mb-12 bg-white/10 p-6 rounded-2xl border border-white/20 shadow-2xl">
                    <div className="flex flex-col items-center">
                        <ThumbsUp className="w-16 h-16 text-green-400 mb-3" />
-                       <span className="text-white text-lg font-medium">Show Thumbs UP</span>
-                       <span className="text-white/60 text-sm">to resume workout</span>
+                       <span className="text-white text-lg font-medium">{t('workout.showThumbsUp', 'Show Thumbs UP')}</span>
+                       <span className="text-white/60 text-sm">{t('workout.toResume', 'to resume workout')}</span>
                    </div>
                    <div className="w-px bg-white/20 h-full"></div>
                    <div className="flex flex-col items-center">
                        <ThumbsDown className="w-16 h-16 text-red-400 mb-3" />
-                       <span className="text-white text-lg font-medium">Show Thumbs DOWN</span>
-                       <span className="text-white/60 text-sm">to stop workout</span>
+                       <span className="text-white text-lg font-medium">{t('workout.showThumbsDown', 'Show Thumbs DOWN')}</span>
+                       <span className="text-white/60 text-sm">{t('workout.toStop', 'to stop workout')}</span>
                    </div>
                </div>
 
                <div className="flex gap-6 mt-4 opacity-50 hover:opacity-100 transition-opacity">
-                   <Button onClick={handlePainResume} size="lg" className="bg-green-600 hover:bg-green-500">Resume</Button>
-                   <Button onClick={handleStop} size="lg" variant="destructive">Stop</Button>
+                   <Button onClick={handlePainResume} size="lg" className="bg-green-600 hover:bg-green-500">{t('common.resume', 'Resume')}</Button>
+                   <Button onClick={handleStop} size="lg" variant="destructive">{t('common.stop', 'Stop')}</Button>
                </div>
            </motion.div>
         )}
@@ -1055,16 +1056,16 @@ export function WorkoutScreen() {
       {/* Analytics HUD */}
       <div className="absolute top-6 left-6 flex flex-col gap-4 z-20 pointer-events-none">
         <div className="bg-black/60 backdrop-blur-md px-6 py-4 rounded-2xl border border-white/10 w-48 text-center">
-            <p className="text-white/60 text-sm mb-1 uppercase tracking-wider">Time</p>
+            <p className="text-white/60 text-sm mb-1 uppercase tracking-wider">{t('common.time', 'Time')}</p>
             <p className="text-white font-mono text-3xl">{formatDuration(duration)}</p>
         </div>
         <div className="bg-black/60 backdrop-blur-md px-6 py-4 rounded-2xl border border-white/10 flex gap-6 text-center w-48 justify-center">
             <div>
-                <p className="text-white/60 text-sm mb-1">REPS</p>
+                <p className="text-white/60 text-sm mb-1">{t('common.reps', 'REPS')}</p>
                 <p className="text-white font-mono text-2xl">{trackerUIState.correctReps}/{REPS_PER_SET}</p>
             </div>
             <div>
-                <p className="text-white/60 text-sm mb-1">ACC.</p>
+                <p className="text-white/60 text-sm mb-1">{t('common.accuracyAbbr', 'ACC.')}</p>
                 <p className="text-[#00ff00] font-mono text-2xl">{trackerUIState.accuracy}%</p>
             </div>
         </div>
@@ -1073,7 +1074,7 @@ export function WorkoutScreen() {
       {/* Dynamic Feedback Toast */}
       <div className="absolute top-8 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
          <div className={`px-6 py-3 rounded-full text-lg font-medium shadow-2xl transition-colors duration-300 ${trackerUIState.currentRepFailed ? 'bg-red-500 text-white' : (trackerUIState.status === "OUTBOUND" || trackerUIState.status === "INBOUND" ? 'bg-blue-600 text-white' : 'bg-white/95 text-black')}`}>
-             {workoutPhase === 'ALIGNING' ? "Align with Yellow Guide" : trackerUIState.feedbackMessage}
+             {workoutPhase === 'ALIGNING' ? t('workout.alignWithGuide', "Align with Yellow Guide") : trackerUIState.feedbackMessage}
          </div>
       </div>
 
@@ -1087,19 +1088,19 @@ export function WorkoutScreen() {
           playsInline 
           className="w-full h-full object-cover" 
         />
-        <div className="absolute bottom-2 left-2 bg-black/60 px-2 py-1 rounded text-[10px] font-bold text-white uppercase tracking-wider">Ideal Reference</div>
+        <div className="absolute bottom-2 left-2 bg-black/60 px-2 py-1 rounded text-[10px] font-bold text-white uppercase tracking-wider">{t('workout.idealReference', 'Ideal Reference')}</div>
       </div>
 
       {/* Controls */}
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-3 z-20">
         <Button onClick={isPaused ? handleAppResume : handlePause} size="lg" variant={isPaused ? 'default' : 'secondary'} className="rounded-2xl h-14 px-6">
-          {isPaused ? <><Play className="w-5 h-5 mr-2" /> Resume</> : <><Pause className="w-5 h-5 mr-2" /> Pause</>}
+          {isPaused ? <><Play className="w-5 h-5 mr-2" /> {t('common.resume', 'Resume')}</> : <><Pause className="w-5 h-5 mr-2" /> {t('common.pause', 'Pause')}</>}
         </Button>
         <Button onClick={toggleVoice} size="lg" variant="secondary" className="rounded-2xl h-14 px-6">
           {voiceEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
         </Button>
         <Button onClick={handleStop} size="lg" variant="destructive" className="rounded-2xl h-14 px-6">
-          <StopCircle className="w-5 h-5 mr-2" /> Stop
+          <StopCircle className="w-5 h-5 mr-2" /> {t('common.stop', 'Stop')}
         </Button>
       </div>
 

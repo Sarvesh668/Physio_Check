@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, useParams } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { PhysiotherapistLayout } from '../../components/layouts/PhysiotherapistLayout';
 import { Card } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
@@ -38,13 +39,8 @@ interface Patient {
   };
 }
 
-const AVAILABLE_EXERCISES = [
-  { id: 'rotator-cuff', name: 'Rotator Cuff' },
-  { id: 'wall-slide', name: 'Wall Slide' },
-  { id: 'front-raise', name: 'Front Raise' }
-];
-
 export function Dashboard() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const { patientId } = useParams();
@@ -55,6 +51,12 @@ export function Dashboard() {
   const [selectedExercises, setSelectedExercises] = useState<string[]>([]);
   const [videoFiles, setVideoFiles] = useState<Record<string, File>>({});
   const [uploading, setUploading] = useState(false);
+
+  const AVAILABLE_EXERCISES = [
+    { id: 'rotator-cuff', name: t('exercises.rotatorCuff.name', 'Rotator Cuff') },
+    { id: 'wall-slide', name: t('exercises.wallSlides.name', 'Wall Slide') },
+    { id: 'front-raise', name: t('exercises.frontRaises.name', 'Front Raise') }
+  ];
 
   const isPatientsView = location.pathname.includes('/patients');
   const isDetailView = !!patientId;
@@ -82,11 +84,7 @@ export function Dashboard() {
   const currentPatient = patients.find(p => p.id === patientId);
 
   const stats = [
-    { label: 'Total Patients', value: patients.length.toString(), icon: Users, color: 'text-blue-600', bg: 'bg-blue-100' },
-    // Hide or implement other stats when backend logic is ready
-    // { label: 'Active Sessions', value: '8', icon: Activity, color: 'text-primary', bg: 'bg-primary/10' },
-    // { label: 'Pending Reviews', value: '5', icon: Clock, color: 'text-amber-600', bg: 'bg-amber-100' },
-    // { label: 'Completed Care', value: '156', icon: CheckCircle2, color: 'text-green-600', bg: 'bg-green-100' }
+    { label: t('physioDashboard.totalPatients', 'Total Patients'), value: patients.length.toString(), icon: Users, color: 'text-blue-600', bg: 'bg-blue-100' },
   ];
 
   const filteredPatients = patients.filter(p => 
@@ -113,10 +111,8 @@ export function Dashboard() {
   };
 
   const uploadToCloudinary = async (file: File): Promise<string> => {
-    // 1. REWRITE CONFIG: Using the exported config object
     const { cloudName, uploadPreset } = cloudinaryConfig;
 
-    // 3. VITE .ENV CHECK: Explicit console error if Vite fails to read .env
     if (!cloudName) {
         console.error('Vite is not reading the .env file. Check file location (should be .env.local in frontend root).');
         throw new Error("Cloudinary configuration missing (Cloud Name)");
@@ -132,7 +128,6 @@ export function Dashboard() {
     formData.append('resource_type', 'video');
 
     try {
-      // 5. UPLOAD URL: Update the fetch URL to use cloudinaryConfig.cloudName
       const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/video/upload`, {
         method: 'POST',
         body: formData,
@@ -154,7 +149,7 @@ export function Dashboard() {
 
   const handleSaveExercises = async () => {
     if (!patientId || selectedExercises.length === 0) {
-      toast.error('Please select at least one exercise');
+      toast.error(t('physioDashboard.selectOneExercise', 'Please select at least one exercise'));
       return;
     }
     
@@ -168,11 +163,11 @@ export function Dashboard() {
           let videoUrl = '';
           if (file) {
             try {
-              toast.info(`Uploading video for ${exerciseName}...`);
+              toast.info(t('physioDashboard.uploadingVideo', `Uploading video for {{name}}...`, { name: exerciseName }));
               videoUrl = await uploadToCloudinary(file);
             } catch (uploadError: any) {
               console.error(`Upload Error for ${exerciseName}:`, uploadError);
-              toast.error(`Failed to upload video for ${exerciseName}.`);
+              toast.error(t('physioDashboard.uploadFailed', `Failed to upload video for {{name}}.`, { name: exerciseName }));
               throw uploadError;
             }
           }
@@ -184,7 +179,6 @@ export function Dashboard() {
         })
       );
 
-      // 5. FIRESTORE SYNC: Finalizing the update for the specific patient
       const db = getFirestoreDb();
       const assignmentRef = doc(db, 'assigned_exercises', patientId);
       
@@ -201,12 +195,12 @@ export function Dashboard() {
           throw firestoreError;
       }
 
-      toast.success('Exercises and videos assigned successfully!');
+      toast.success(t('physioDashboard.saveSuccess', 'Exercises and videos assigned successfully!'));
       setSelectedExercises([]);
       setVideoFiles({});
     } catch (error: any) {
       console.error("Critical Chain Failure:", error);
-      toast.error(error.message || 'An error occurred while saving assignments');
+      toast.error(error.message || t('common.saveError', 'An error occurred while saving assignments'));
     } finally {
       setUploading(false);
     }
@@ -221,10 +215,10 @@ export function Dashboard() {
           animate={{ opacity: 1, y: 0 }}
         >
           <h1 className="text-3xl mb-2">
-            {isDetailView ? 'Patient Details' : isPatientsView ? 'My Patients' : 'Physiotherapist Dashboard'}
+            {isDetailView ? t('physioDashboard.patientDetails', 'Patient Details') : isPatientsView ? t('physioDashboard.myPatients', 'My Patients') : t('physioDashboard.title', 'Physiotherapist Dashboard')}
           </h1>
           <p className="text-muted-foreground">
-            {isDetailView ? 'Monitoring patient recovery and progress' : 'Manage your patients and track their recovery journey.'}
+            {isDetailView ? t('physioDashboard.patientSub', 'Monitoring patient recovery and progress') : t('physioDashboard.subtitle', 'Manage your patients and track their recovery journey.')}
           </p>
         </motion.div>
 
@@ -259,9 +253,9 @@ export function Dashboard() {
               {/* Recent Patient Activity */}
               <Card className="lg:col-span-2 p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-semibold">My Patients</h2>
+                  <h2 className="text-xl font-semibold">{t('physioDashboard.myPatients', 'My Patients')}</h2>
                   <Button variant="ghost" size="sm" onClick={() => navigate('/physiotherapist/patients')}>
-                    View All <ChevronRight className="w-4 h-4 ml-1" />
+                    {t('common.viewAll', 'View All')} <ChevronRight className="w-4 h-4 ml-1" />
                   </Button>
                 </div>
                 <div className="space-y-4">
@@ -280,7 +274,7 @@ export function Dashboard() {
                         </div>
                         <div>
                           <p className="font-medium">{patient.name}</p>
-                          <p className="text-xs text-muted-foreground">{patient.onboarding?.reason || 'No details provided'}</p>
+                          <p className="text-xs text-muted-foreground">{patient.onboarding?.reason || t('physioDashboard.noDetails', 'No details provided')}</p>
                         </div>
                       </div>
                       <ChevronRight className="w-5 h-5 text-muted-foreground" />
@@ -288,7 +282,7 @@ export function Dashboard() {
                   ))}
                   {patients.length === 0 && (
                     <div className="text-center py-8 text-muted-foreground">
-                      No patients linked yet.
+                      {t('physioDashboard.noPatients', 'No patients linked yet.')}
                     </div>
                   )}
                 </div>
@@ -297,14 +291,14 @@ export function Dashboard() {
               {/* Quick Actions & Notifications */}
               <div className="space-y-6">
                 <Card className="p-6">
-                  <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
+                  <h3 className="text-lg font-semibold mb-4">{t('physioDashboard.quickActions', 'Quick Actions')}</h3>
                   <div className="space-y-3">
                     <Button 
                       variant="outline" 
                       className="w-full justify-start h-12"
                       onClick={() => navigate('/physiotherapist/messages')}
                     >
-                      <MessageSquare className="w-5 h-5 mr-3" /> Patient Messages
+                      <MessageSquare className="w-5 h-5 mr-3" /> {t('physioDashboard.patientMessages', 'Patient Messages')}
                     </Button>
                   </div>
                 </Card>
@@ -321,7 +315,7 @@ export function Dashboard() {
                   <div className="relative flex-1 max-w-md">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input 
-                      placeholder="Search patients..." 
+                      placeholder={t('physioDashboard.searchPlaceholder', 'Search patients...')}
                       className="pl-10"
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
@@ -351,9 +345,9 @@ export function Dashboard() {
                           </div>
                         </div>
                         <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
-                          {patient.onboarding?.reason || 'No reason specified'}
+                          {patient.onboarding?.reason || t('physioDashboard.noReason', 'No reason specified')}
                         </p>
-                        <Button variant="outline" className="w-full">View Details</Button>
+                        <Button variant="outline" className="w-full">{t('common.viewDetails', 'View Details')}</Button>
                       </Card>
                     </motion.div>
                   ))}
@@ -373,25 +367,25 @@ export function Dashboard() {
 
                   <div className="space-y-4 pt-6 border-t">
                     <div>
-                      <Label className="text-xs text-muted-foreground uppercase tracking-wider font-bold">Age</Label>
-                      <p className="font-medium">{currentPatient?.onboarding?.age || 'N/A'} years</p>
+                      <Label className="text-xs text-muted-foreground uppercase tracking-wider font-bold">{t('common.age', 'Age')}</Label>
+                      <p className="font-medium">{currentPatient?.onboarding?.age || 'N/A'} {t('common.years', 'years')}</p>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label className="text-xs text-muted-foreground uppercase tracking-wider font-bold">Height</Label>
+                        <Label className="text-xs text-muted-foreground uppercase tracking-wider font-bold">{t('common.height', 'Height')}</Label>
                         <p className="font-medium">{currentPatient?.onboarding?.height || 'N/A'} cm</p>
                       </div>
                       <div>
-                        <Label className="text-xs text-muted-foreground uppercase tracking-wider font-bold">Weight</Label>
+                        <Label className="text-xs text-muted-foreground uppercase tracking-wider font-bold">{t('common.weight', 'Weight')}</Label>
                         <p className="font-medium">{currentPatient?.onboarding?.weight || 'N/A'} kg</p>
                       </div>
                     </div>
                     <div>
-                      <Label className="text-xs text-muted-foreground uppercase tracking-wider font-bold">Referred By</Label>
+                      <Label className="text-xs text-muted-foreground uppercase tracking-wider font-bold">{t('onboarding.referredBy', 'Referred By')}</Label>
                       <p className="font-medium">{currentPatient?.onboarding?.referred_by || 'N/A'}</p>
                     </div>
                     <div>
-                      <Label className="text-xs text-muted-foreground uppercase tracking-wider font-bold">Reason for Therapy</Label>
+                      <Label className="text-xs text-muted-foreground uppercase tracking-wider font-bold">{t('physioDashboard.reasonForTherapy', 'Reason for Therapy')}</Label>
                       <p className="text-sm bg-muted p-3 rounded-lg mt-1 italic">
                         "{currentPatient?.onboarding?.reason || 'N/A'}"
                       </p>
@@ -404,7 +398,7 @@ export function Dashboard() {
                       onClick={() => navigate(`/physiotherapist/patient/${patientId}/analysis`)}
                     >
                       <BarChart3 className="w-5 h-5 mr-2" />
-                      View Detailed Analysis
+                      {t('physioDashboard.viewDetailedAnalysis', 'View Detailed Analysis')}
                     </Button>
                     
                     <Button 
@@ -412,7 +406,7 @@ export function Dashboard() {
                       className="w-full"
                       onClick={() => navigate('/physiotherapist/patients')}
                     >
-                      Back to List
+                      {t('common.backToList', 'Back to List')}
                     </Button>
                   </div>
                 </Card>
@@ -424,8 +418,8 @@ export function Dashboard() {
                       <Plus className="w-6 h-6 text-primary" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold">Assign Exercises</h3>
-                      <p className="text-sm text-muted-foreground">Select exercises and upload instruction videos</p>
+                      <h3 className="text-xl font-bold">{t('physioDashboard.assignExercises', 'Assign Exercises')}</h3>
+                      <p className="text-sm text-muted-foreground">{t('physioDashboard.assignExercisesSub', 'Select exercises and upload instruction videos')}</p>
                     </div>
                   </div>
 
@@ -453,7 +447,7 @@ export function Dashboard() {
                             animate={{ opacity: 1, height: 'auto' }}
                             className="space-y-4 pt-2"
                           >
-                            <Label>Instruction Video</Label>
+                            <Label>{t('physioDashboard.instructionVideo', 'Instruction Video')}</Label>
                             {!videoFiles?.[exercise.id] ? (
                               <label className="block border-2 border-dashed border-border rounded-xl p-6 text-center cursor-pointer hover:border-primary transition-colors bg-background">
                                 <input
@@ -463,13 +457,13 @@ export function Dashboard() {
                                   className="hidden"
                                 />
                                 <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                                <p className="text-sm font-medium">Upload video for {exercise.name}</p>
+                                <p className="text-sm font-medium">{t('physioDashboard.uploadVideoFor', `Upload video for {{name}}`, { name: exercise.name })}</p>
                               </label>
                             ) : (
                               <div className="flex items-center gap-4 p-4 bg-background border rounded-xl">
                                 <Video className="w-6 h-6 text-primary" />
                                 <div className="flex-1 truncate">
-                                  <p className="text-sm font-medium truncate">{videoFiles[exercise.id]?.name || 'Video File'}</p>
+                                  <p className="text-sm font-medium truncate">{videoFiles[exercise.id]?.name || t('physioDashboard.videoFile', 'Video File')}</p>
                                   <p className="text-xs text-muted-foreground">
                                     {(videoFiles[exercise.id]?.size / (1024 * 1024)).toFixed(2)} MB
                                   </p>
@@ -497,9 +491,9 @@ export function Dashboard() {
                       {uploading ? (
                         <>
                           <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                          Saving Assignments...
+                          {t('physioDashboard.savingAssignments', 'Saving Assignments...')}
                         </>
-                      ) : 'Save & Assign Exercises'}
+                      ) : t('physioDashboard.saveBtn', 'Save & Assign Exercises')}
                     </Button>
                   </div>
                 </Card>

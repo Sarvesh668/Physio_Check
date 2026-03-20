@@ -4,6 +4,7 @@
  */
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pose, Results } from '@mediapipe/pose';
 import { Camera } from '@mediapipe/camera_utils';
 import { ExerciseConfig, POSE_CONNECTIONS } from '../config/exerciseConfigs';
@@ -29,6 +30,7 @@ export function GenericTracker({
   onResume,
   onStop
 }: GenericTrackerProps) {
+  const { t } = useTranslation();
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<StrictPoseEngine | null>(null);
@@ -296,7 +298,7 @@ export function GenericTracker({
     // Draw joint label
     ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
     ctx.font = '12px sans-serif';
-    ctx.fillText(primaryJoint.label, x + offsetX, y + offsetY + 15);
+    ctx.fillText(t(`exercises.joints.${primaryJoint.label.toLowerCase().replace(' ', '')}`, primaryJoint.label), x + offsetX, y + offsetY + 15);
   };
 
   // Draw alignment guides
@@ -363,19 +365,19 @@ export function GenericTracker({
         <div className="bg-black/80 backdrop-blur-sm rounded-2xl px-6 py-4 text-white">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <div>
-              <p className="text-xs text-white/60 mb-1">Total Reps</p>
+              <p className="text-xs text-white/60 mb-1">{t('common.totalReps', 'Total Reps')}</p>
               <p className="text-2xl">{repCount}</p>
             </div>
             <div>
-              <p className="text-xs text-white/60 mb-1">Correct Reps</p>
+              <p className="text-xs text-white/60 mb-1">{t('common.correctReps', 'Correct Reps')}</p>
               <p className="text-2xl text-green-400">{correctReps}</p>
             </div>
             <div>
-              <p className="text-xs text-white/60 mb-1">Accuracy</p>
+              <p className="text-xs text-white/60 mb-1">{t('common.accuracy', 'Accuracy')}</p>
               <p className="text-2xl">{accuracy}%</p>
             </div>
             <div>
-              <p className="text-xs text-white/60 mb-1">Current Angle</p>
+              <p className="text-xs text-white/60 mb-1">{t('tracker.currentAngle', 'Current Angle')}</p>
               <p className="text-2xl">{currentAngle.toFixed(1)}°</p>
             </div>
           </div>
@@ -391,7 +393,7 @@ export function GenericTracker({
               currentState === 'flexing' ? 'bg-purple-400' :
               'bg-green-400'
             }`} />
-            <span className="text-xs text-white/80 capitalize">{currentState}</span>
+            <span className="text-xs text-white/80 capitalize">{t(`tracker.state.${currentState}`, currentState)}</span>
           </div>
         </div>
 
@@ -408,7 +410,7 @@ export function GenericTracker({
         <div className="absolute inset-0 flex items-center justify-center bg-black/90">
           <div className="text-center">
             <div className="w-16 h-16 border-4 border-white border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-            <p className="text-white">Initializing camera and pose detection...</p>
+            <p className="text-white">{t('tracker.initializing', 'Initializing camera and pose detection...')}</p>
           </div>
         </div>
       )}

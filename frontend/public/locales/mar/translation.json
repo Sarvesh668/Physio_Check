@@ -1,0 +1,117 @@
+{
+  "common": {
+    "fullName": "पूर्ण नाव",
+    "email": "ईमेल पत्ता",
+    "age": "वय",
+    "height": "उंची (सेमी)",
+    "weight": "वजन (किलो)",
+    "cancel": "रद्द करा",
+    "saving": "जतन करत आहे...",
+    "saveChanges": "बदल जतन करा",
+    "logout": "लॉग आउट",
+    "minutesAbbr": "मि",
+    "secondsAbbr": "से",
+    "totalReps": "एकूण रेप्स",
+    "correctReps": "योग्य रेप्स",
+    "accuracy": "अचूकता",
+    "duration": "कालावधी",
+    "week": "आठवडा",
+    "selectExercise": "व्यायाम निवडा",
+    "allExercises": "सर्व व्यायाम",
+    "start": "सुरू करा",
+    "years": "वर्षे",
+    "connectionError": "कनेक्शन त्रुटी"
+  },
+  "nav": {
+    "dashboard": "डॅशबोर्ड",
+    "startWorkout": "वर्कआउट सुरू करा",
+    "reports": "विश्लेषण अहवाल",
+    "messages": "संदेश",
+    "profile": "प्रोफाइल"
+  },
+  "choosePhysio": {
+    "title": "तुमचा फिजिओथेरपिस्ट निवडा",
+    "subtitle": "तुमच्या रिकव्हरी प्रवासात मार्गदर्शन करण्यासाठी तज्ञाची निवड करा.",
+    "searchPlaceholder": "नावाने शोधा...",
+    "loading": "तुमच्यासाठी तज्ञ शोधत आहोत...",
+    "certifiedPhysio": "प्रमाणित फिजिओथेरपिस्ट",
+    "linkSuccess": "फिजिओथेरपिस्ट यशस्वीरित्या लिंक झाला!",
+    "linkError": "फिजिओथेरपिस्ट लिंक करण्यात अयशस्वी"
+  },
+  "onboarding": {
+    "welcome": "Physio-Check मध्ये आपले स्वागत आहे",
+    "subtitle": "तुमचा अनुभव अधिक चांगला करण्यासाठी कृपया तुमच्याबद्दल अधिक सांगा.",
+    "referredBy": "कोणी सुचवले",
+    "referredPlaceholder": "डॉक्टरांचे नाव किंवा क्लिनिक",
+    "failed": "ऑनबोर्डिंग अयशस्वी"
+  },
+  "profile": {
+    "title": "प्रोफाइल सेटिंग्ज",
+    "subtitle": "तुमची खाते माहिती आणि प्राधान्ये व्यवस्थापित करा",
+    "changeAvatar": "अवतार बदला",
+    "security": "सुरक्षा",
+    "changePassword": "पासवर्ड बदला",
+    "editBtn": "प्रोफाइल संपादित करा",
+    "updateSuccess": "प्रोफाइल यशस्वीरित्या अपडेट झाले!",
+    "updateFailed": "प्रोफाइल अपडेट करण्यात अयशस्वी"
+  },
+  "analysis": {
+    "avgAccuracyTitle": "सरासरी अचूकता (शेवटचे 7)",
+    "avgAccuracySub": "अलीकडील कामगिरीवर आधारित",
+    "totalTrainingTimeTitle": "एकूण प्रशिक्षण वेळ",
+    "totalTrainingTimeSub": "आतापर्यंतचा एकूण व्यायाम",
+    "progressionTrendTitle": "प्रगतीचा कल",
+    "progressionTrendSub": "रेप वाढ (पहिला वि नवीनतम)",
+    "completedSessionsTitle": "पूर्ण झालेले सत्र",
+    "completedSessionsSub": "एकूण रेकॉर्ड केलेले सत्र",
+    "confirmClearData": "तुम्हाला खात्री आहे की तुम्ही तुमचा सर्व वर्कआउट इतिहास मिटवू इच्छिता?",
+    "loading": "विश्लेषण डेटा लोड करत आहे...",
+    "noSessions": "अद्याप कोणतेही सत्र लॉग केलेले नाही.",
+    "noSessionsSub": "रुग्णाने केलेले सत्र किनेमॅटिक विश्लेषणासाठी येथे दिसतील.",
+    "performanceTitle": "कामगिरी विश्लेषण",
+    "performanceSub": "रिकव्हरी देखरेखीसाठी किनेमॅटिक फीडबॅक",
+    "clearAllData": "सर्व डेटा साफ करा"
+  },
+  "workoutSummary": {
+    "complete": "वर्कआउट पूर्ण झाले!",
+    "successSubtitle": "तुम्ही यशस्वीरित्या {{name}} पूर्ण केले आहे",
+    "performanceTitle": "कामगिरी फीडबॅक",
+    "performanceExcellent": "उत्कृष्ट काम! तुमचा फॉर्म खूप चांगला होता.",
+    "performanceGreat": "खूप छान! तुमच्या तंत्रावर लक्ष केंद्रित करत राहा.",
+    "performanceGood": "चांगला प्रयत्न! सरावाने तुमचा फॉर्म सुधारेल.",
+    "performanceKeepPracticing": "सराव करत राहा! पोश्चर सूचनांवर लक्ष केंद्रित करा.",
+    "excellentForm": "उत्कृष्ट फॉर्म"
+  },
+  "messages": {
+    "initFailed": "चॅट सुरू करण्यात अयशस्वी",
+    "unauthorized": "चॅट रूममध्ये अनधिकृत प्रवेश",
+    "syncFailed": "संदेश सिंक करण्यात अयशस्वी",
+    "sendFailed": "संदेश पाठवण्यात अयशस्वी",
+    "noPhysioTitle": "कोणताही फिजिओथेरपिस्ट नियुक्त केलेला नाही",
+    "noPhysioSub": "कृपया चॅटिंग सुरू करण्यासाठी एक फिजिओथेरपिस्ट निवडा.",
+    "choosePhysioBtn": "फिजिओथेरपिस्ट निवडा",
+    "yourPhysio": "तुमचा फिजिओथेरपिस्ट",
+    "noMessages": "अद्याप कोणतेही संदेश नाहीत. हॅलो म्हणा!"
+  },
+  "physioDashboard": {
+    "totalPatients": "एकूण रुग्ण",
+    "uploadingVideo": "{{name}} साठी व्हिडिओ अपलोड करत आहे...",
+    "uploadFailed": "{{name}} साठी व्हिडिओ अपलोड करण्यात अयशस्वी.",
+    "selectOneExercise": "कृपया किमान एक व्यायाम निवडा"
+  },
+  "physioMessages": {
+    "conversationsTitle": "रुग्णांचे संवाद",
+    "noLinkedPatients": "कोणतेही लिंक केलेले रुग्ण आढळले नाहीत.",
+    "loadPatientsFailed": "रुग्ण लोड करण्यात अयशस्वी"
+  },
+  "tracker": {
+    "currentAngle": "वर्तमान कोन",
+    "initializing": "कॅमेरा आणि पोझ डिटेक्शन सुरू करत आहे...",
+    "state": {
+      "waiting": "प्रतीक्षा",
+      "outbound": "बाहेरच्या दिशेने",
+      "inbound": "आतल्या दिशेने",
+      "flexing": "वाकवणे"
+    }
+  }
+}

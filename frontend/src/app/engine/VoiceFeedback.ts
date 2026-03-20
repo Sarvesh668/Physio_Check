@@ -2,6 +2,7 @@
  * Voice Feedback System
  * Provides real-time audio feedback using browser speech synthesis
  */
+import i18n from '../../i18n'; // Import i18n global instance
 
 export class VoiceFeedback {
   private synth: SpeechSynthesis;
@@ -30,11 +31,13 @@ export class VoiceFeedback {
       return;
     }
 
-    // Prefer English female voice if available
+    // Try to find a voice that matches our active i18n language
+    const currentLang = i18n.language || 'en';
+    
     this.voice = voices.find(voice => 
-      voice.lang.startsWith('en') && voice.name.includes('Female')
+      voice.lang.startsWith(currentLang) && voice.name.includes('Female')
     ) || voices.find(voice => 
-      voice.lang.startsWith('en')
+      voice.lang.startsWith(currentLang)
     ) || voices[0];
   }
 
@@ -49,7 +52,27 @@ export class VoiceFeedback {
 
     const utterance = new SpeechSynthesisUtterance(text);
     
-    if (this.voice) {
+    // CRITICAL for i18n: Tell synthesizer which language to speak!
+    const currentLang = i18n.language || 'en';
+    
+    if (currentLang.startsWith('es')) {
+      utterance.lang = 'es-ES';
+    } else if (currentLang.startsWith('hin') || currentLang.startsWith('hi')) {
+      utterance.lang = 'hi-IN'; // Hindi (India)
+    } else if (currentLang.startsWith('mar') || currentLang.startsWith('mr')) {
+      utterance.lang = 'mr-IN'; // Marathi (India)
+    } else {
+      utterance.lang = 'en-US';
+    }
+    
+    // Attempt to re-fetch the correct native voice just in case they switched languages mid-session
+    const voices = this.synth.getVoices();
+    const targetVoice = voices.find(v => v.lang.startsWith(currentLang) && v.name.includes('Female')) 
+                     || voices.find(v => v.lang.startsWith(currentLang));
+
+    if (targetVoice) {
+      utterance.voice = targetVoice;
+    } else if (this.voice) {
       utterance.voice = this.voice;
     }
     
@@ -69,7 +92,8 @@ export class VoiceFeedback {
       return;
     }
 
-    const message = `Correct rep ${repNumber}`;
+    // Use i18n to translate the string, with a fallback
+    const message = i18n.t('voice.correctRep', { defaultValue: `Correct rep ${repNumber}`, repNumber });
     this.speak(message);
     
     this.lastAnnouncement = message;
@@ -85,7 +109,7 @@ export class VoiceFeedback {
       return;
     }
 
-    const message = 'Incomplete range of motion';
+    const message = i18n.t('voice.incompleteROM', { defaultValue: 'Incomplete range of motion' });
     this.speak(message);
     
     this.lastAnnouncement = message;
@@ -101,6 +125,7 @@ export class VoiceFeedback {
       return;
     }
 
+    // (Note: To translate 'instruction', the caller (WorkoutScreen) must pass the t() translated string)
     this.speak(instruction);
     
     this.lastAnnouncement = instruction;

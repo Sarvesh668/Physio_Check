@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router';
 import { useAuth, UserRole } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
@@ -10,6 +11,7 @@ import { motion } from 'motion/react';
 export function Signup() {
   const navigate = useNavigate();
   const { signup } = useAuth();
+  const { t } = useTranslation(); // Initialize translation hook
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -25,27 +27,26 @@ export function Signup() {
     setError('');
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setError(t('auth.passwordMismatch', 'Passwords do not match'));
       return;
     }
 
     if (password.length < 6) {
-      setError('Password must be at least 6 characters');
+      setError(t('auth.passwordLength', 'Password must be at least 6 characters'));
       return;
     }
 
     if (!role) {
-      setError("Please select a role");
+      setError(t('auth.selectRole', 'Please select a role'));
       return; 
     }
 
     setLoading(true);
     try {
       await signup(name, email, password, role);
-      // RESTORED: Route straight to onboarding if they are a patient
       navigate(role === 'patient' ? '/onboarding' : '/physiotherapist/dashboard');
     } catch (err) {
-      setError('Failed to create account. Please try again.');
+      setError(t('auth.signupFailed', 'Failed to create account. Please try again.'));
     } finally {
       setLoading(false);
     }
@@ -71,7 +72,7 @@ export function Signup() {
             <Activity className="w-24 h-24 mb-6 mx-auto" strokeWidth={1.5} />
             <h1 className="text-5xl mb-4">Physio-Check</h1>
             <p className="text-xl text-white/90 max-w-md text-center">
-              Real-time Exercise Analysis with AI-Powered Pose Estimation
+              {t('signup.subtitle', 'Real-time Exercise Analysis with AI-Powered Pose Estimation')}
             </p>
           </motion.div>
           
@@ -85,36 +86,36 @@ export function Signup() {
               <div className="w-12 h-12 bg-white/20 rounded-xl mb-4 flex items-center justify-center">
                 <Activity className="w-6 h-6" />
               </div>
-              <h3 className="mb-2">Real-time Feedback</h3>
+              <h3 className="mb-2">{t('signup.feature1Title', 'Real-time Feedback')}</h3>
               <p className="text-sm text-white/80">
-                Get instant posture corrections and rep counting with MediaPipe AI
+                {t('signup.feature1Desc', 'Get instant posture corrections and rep counting with MediaPipe AI')}
               </p>
             </div>
             <div className="bg-white/10 backdrop-blur-sm p-6 rounded-2xl">
               <div className="w-12 h-12 bg-white/20 rounded-xl mb-4 flex items-center justify-center">
                 <Activity className="w-6 h-6" />
               </div>
-              <h3 className="mb-2">Progress Tracking</h3>
+              <h3 className="mb-2">{t('signup.feature2Title', 'Progress Tracking')}</h3>
               <p className="text-sm text-white/80">
-                Track your range of motion and accuracy across sessions
+                {t('signup.feature2Desc', 'Track your range of motion and accuracy across sessions')}
               </p>
             </div>
             <div className="bg-white/10 backdrop-blur-sm p-6 rounded-2xl">
               <div className="w-12 h-12 bg-white/20 rounded-xl mb-4 flex items-center justify-center">
                 <Activity className="w-6 h-6" />
               </div>
-              <h3 className="mb-2">Expert Guidance</h3>
+              <h3 className="mb-2">{t('signup.feature3Title', 'Expert Guidance')}</h3>
               <p className="text-sm text-white/80">
-                Connect with physiotherapists for personalized programs
+                {t('signup.feature3Desc', 'Connect with physiotherapists for personalized programs')}
               </p>
             </div>
             <div className="bg-white/10 backdrop-blur-sm p-6 rounded-2xl">
               <div className="w-12 h-12 bg-white/20 rounded-xl mb-4 flex items-center justify-center">
                 <Activity className="w-6 h-6" />
               </div>
-              <h3 className="mb-2">Voice Commands</h3>
+              <h3 className="mb-2">{t('signup.feature4Title', 'Voice Commands')}</h3>
               <p className="text-sm text-white/80">
-                Hands-free TTS guidance during your workout sessions
+                {t('signup.feature4Desc', 'Hands-free TTS guidance during your workout sessions')}
               </p>
             </div>
           </motion.div>
@@ -130,9 +131,9 @@ export function Signup() {
           className="w-full max-w-md"
         >
           <div className="mb-8">
-            <h2 className="text-3xl mb-2">Create Account</h2>
+            <h2 className="text-3xl mb-2">{t('auth.createAccount', 'Create Account')}</h2>
             <p className="text-muted-foreground">
-              Join Physio-Check to start your recovery journey
+              {t('signup.formSubtitle', 'Join Physio-Check to start your recovery journey')}
             </p>
           </div>
 
@@ -148,7 +149,7 @@ export function Signup() {
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
+              <Label htmlFor="name">{t('auth.fullName', 'Full Name')}</Label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input
@@ -164,7 +165,7 @@ export function Signup() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email">Email Address</Label>
+              <Label htmlFor="email">{t('auth.email', 'Email Address')}</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input
@@ -180,7 +181,7 @@ export function Signup() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t('auth.password', 'Password')}</Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input
@@ -203,7 +204,7 @@ export function Signup() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Label htmlFor="confirmPassword">{t('auth.confirmPassword', 'Confirm Password')}</Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input
@@ -226,7 +227,7 @@ export function Signup() {
             </div>
 
             <div className="space-y-3">
-              <Label>I am a</Label>
+              <Label>{t('auth.roleLabel', 'I am a')}</Label>
               <div className="grid grid-cols-2 gap-3">
                <button
                   type="button"
@@ -239,9 +240,9 @@ export function Signup() {
                       : 'border-border hover:border-primary/50'
                   }`}
                 >
-                  <div className="font-medium">Patient</div>
+                  <div className="font-medium">{t('auth.rolePatient', 'Patient')}</div>
                   <div className="text-sm text-muted-foreground mt-1">
-                    Start my recovery
+                    {t('auth.rolePatientDesc', 'Start my recovery')}
                   </div>
                 </button>
                 <button
@@ -253,9 +254,9 @@ export function Signup() {
                       : 'border-border hover:border-primary/50'
                   }`}
                 >
-                  <div className="font-medium">Physiotherapist</div>
+                  <div className="font-medium">{t('auth.rolePhysio', 'Physiotherapist')}</div>
                   <div className="text-sm text-muted-foreground mt-1">
-                    Help patients
+                    {t('auth.rolePhysioDesc', 'Help patients')}
                   </div>
                 </button>
               </div>
@@ -266,13 +267,13 @@ export function Signup() {
               disabled={loading}
               className="w-full h-12 rounded-xl bg-primary hover:bg-primary/90"
             >
-              {loading ? 'Creating Account...' : 'Create Account'}
+              {loading ? t('auth.creatingAccount', 'Creating Account...') : t('auth.createAccount', 'Create Account')}
             </Button>
 
             <div className="text-center text-sm">
-              <span className="text-muted-foreground">Already have an account? </span>
+              <span className="text-muted-foreground">{t('auth.alreadyHaveAccount', 'Already have an account?')} </span>
               <Link to="/login" className="text-primary hover:underline">
-                Sign in
+                {t('auth.signIn', 'Sign in')}
               </Link>
             </div>
           </form>

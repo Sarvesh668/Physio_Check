@@ -1,3 +1,4 @@
+//E:\TechFiesta_Final\Physio_Check\frontend\src\app\App.tsx
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { Signup } from './pages/Signup';
