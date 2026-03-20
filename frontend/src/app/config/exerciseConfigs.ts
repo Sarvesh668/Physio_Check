@@ -3,6 +3,7 @@
  * Centralized configuration for rehabilitation exercises.
  * Powered by DTW (Dynamic Time Warping) AI Tracking.
  */
+import i18n from '../../i18n'; // Added import for localization
 
 export interface ReferenceData {
   exercise_name: string;
@@ -54,12 +55,20 @@ export const EXERCISE_CONFIGS: Record<string, ExerciseConfig> = {
   // 1. ROTATOR CUFF
   'rotator-cuff': {
     id: 'rotator-cuff',
-    name: 'Rotator Cuff',
+    name: i18n.t('exercises.rotatorCuff.name', 'Rotator Cuff'),
     primaryJoint: { point1: POSE_LANDMARKS.RIGHT_SHOULDER, point2: POSE_LANDMARKS.RIGHT_ELBOW, point3: POSE_LANDMARKS.RIGHT_WRIST, label: 'Right Arm' },
     side: 'right',
-    description: 'Advanced DTW-tracked rotator cuff rehabilitation.',
-    instructions: ['Stand facing the camera', 'Keep elbow tucked into your side', 'Rotate arm outward smoothly', 'Return to starting position'],
-    postureCues: ['Don\'t flare your elbow', 'Keep shoulders level'],
+    description: i18n.t('exercises.rotatorCuff.description', 'Advanced DTW-tracked rotator cuff rehabilitation.'),
+    instructions: [
+      i18n.t('exercises.rotatorCuff.instruction0', 'Stand facing the camera'),
+      i18n.t('exercises.rotatorCuff.instruction1', 'Keep elbow tucked into your side'),
+      i18n.t('exercises.rotatorCuff.instruction2', 'Rotate arm outward smoothly'),
+      i18n.t('exercises.rotatorCuff.instruction3', 'Return to starting position')
+    ],
+    postureCues: [
+      i18n.t('exercises.rotatorCuff.cue0', 'Don\'t flare your elbow'),
+      i18n.t('exercises.rotatorCuff.cue1', 'Keep shoulders level')
+    ],
     referenceData: {
       "exercise_name": "Rotator Cuff",
       "primary_joint": ["RIGHT_SHOULDER", "RIGHT_ELBOW", "RIGHT_WRIST"],
@@ -129,12 +138,19 @@ export const EXERCISE_CONFIGS: Record<string, ExerciseConfig> = {
   // 2. WALL SLIDES
   'wall-slides': {
     id: 'wall-slides',
-    name: 'Wall Slides',
+    name: i18n.t('exercises.wallSlides.name', 'Wall Slides'),
     primaryJoint: { point1: POSE_LANDMARKS.RIGHT_HIP, point2: POSE_LANDMARKS.RIGHT_SHOULDER, point3: POSE_LANDMARKS.RIGHT_ELBOW, label: 'Right Arm' },
     side: 'right',
-    description: 'Improves shoulder mobility and back posture.',
-    instructions: ['Stand with back against wall', 'Raise arms to 90 degrees', 'Slide arms up wall', 'Lower back down'],
-    postureCues: ['Keep lower back pressed to wall'],
+    description: i18n.t('exercises.wallSlides.description', 'Improves shoulder mobility and back posture.'),
+    instructions: [
+      i18n.t('exercises.wallSlides.instruction0', 'Stand with back against wall'), 
+      i18n.t('exercises.wallSlides.instruction1', 'Raise arms to 90 degrees'), 
+      i18n.t('exercises.wallSlides.instruction2', 'Slide arms up wall'), 
+      i18n.t('exercises.wallSlides.instruction3', 'Lower back down')
+    ],
+    postureCues: [
+      i18n.t('exercises.wallSlides.cue0', 'Keep lower back pressed to wall')
+    ],
     referenceData: {
         "exercise_name": "Wall Slides",
         "primary_joint": ["RIGHT_HIP", "RIGHT_SHOULDER", "RIGHT_ELBOW"],
@@ -199,12 +215,20 @@ export const EXERCISE_CONFIGS: Record<string, ExerciseConfig> = {
   // 3. SIDE RAISES
   'side-raises': {
     id: 'side-raises',
-    name: 'Side Raises',
+    name: i18n.t('exercises.sideRaises.name', 'Side Raises'),
     primaryJoint: { point1: POSE_LANDMARKS.RIGHT_HIP, point2: POSE_LANDMARKS.RIGHT_SHOULDER, point3: POSE_LANDMARKS.RIGHT_ELBOW, label: 'Right Arm' },
     side: 'right',
-    description: 'Improves lateral deltoid strength and shoulder mobility.',
-    instructions: ['Stand straight', 'Raise arms out to the sides', 'Keep arms mostly straight', 'Lower slowly'],
-    postureCues: ['Do not use momentum to swing up', 'Keep chest up'],
+    description: i18n.t('exercises.sideRaises.description', 'Improves lateral deltoid strength and shoulder mobility.'),
+    instructions: [
+      i18n.t('exercises.sideRaises.instruction0', 'Stand straight'), 
+      i18n.t('exercises.sideRaises.instruction1', 'Raise arms out to the sides'), 
+      i18n.t('exercises.sideRaises.instruction2', 'Keep arms mostly straight'), 
+      i18n.t('exercises.sideRaises.instruction3', 'Lower slowly')
+    ],
+    postureCues: [
+      i18n.t('exercises.sideRaises.cue0', 'Do not use momentum to swing up'), 
+      i18n.t('exercises.sideRaises.cue1', 'Keep chest up')
+    ],
     referenceData: {
         "exercise_name": "Side Raises",
         "primary_joint": ["RIGHT_HIP", "RIGHT_SHOULDER", "RIGHT_ELBOW"],

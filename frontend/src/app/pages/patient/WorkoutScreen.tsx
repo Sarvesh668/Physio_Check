@@ -1046,7 +1046,7 @@ export function WorkoutScreen() {
                </div>
 
                <div className="flex gap-6 mt-4 opacity-50 hover:opacity-100 transition-opacity">
-                   <Button onClick={handlePainResume} size="lg" className="bg-green-600 hover:bg-green-500">{t('common.resume', 'Resume')}</Button>
+                   <Button onClick={handlePainResume} size="lg" className="bg-green-600 hover:bg-green-500">{t('workout.resume', 'Resume')}</Button>
                    <Button onClick={handleStop} size="lg" variant="destructive">{t('common.stop', 'Stop')}</Button>
                </div>
            </motion.div>
@@ -1094,7 +1094,7 @@ export function WorkoutScreen() {
       {/* Controls */}
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-3 z-20">
         <Button onClick={isPaused ? handleAppResume : handlePause} size="lg" variant={isPaused ? 'default' : 'secondary'} className="rounded-2xl h-14 px-6">
-          {isPaused ? <><Play className="w-5 h-5 mr-2" /> {t('common.resume', 'Resume')}</> : <><Pause className="w-5 h-5 mr-2" /> {t('common.pause', 'Pause')}</>}
+          {isPaused ? <><Play className="w-5 h-5 mr-2" /> {t('workout.resume', 'Resume')}</> : <><Pause className="w-5 h-5 mr-2" /> {t('workout.pause', 'Pause')}</>}
         </Button>
         <Button onClick={toggleVoice} size="lg" variant="secondary" className="rounded-2xl h-14 px-6">
           {voiceEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}

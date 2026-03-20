@@ -13,21 +13,68 @@
     "secondsAbbr": "से",
     "totalReps": "एकूण रेप्स",
     "correctReps": "योग्य रेप्स",
+    "accuracyAbbr": "अचूकता",
     "accuracy": "अचूकता",
     "duration": "कालावधी",
+    "time": "वेळ",
+    "reps": "रेप्स",
+    "up": "वर",
+    "down": "खाली",
+    "stop": "थांबा",
+    "resume": "पुन्हा सुरू करा",
+    "pause": "विराम",
     "week": "आठवडा",
     "selectExercise": "व्यायाम निवडा",
     "allExercises": "सर्व व्यायाम",
     "start": "सुरू करा",
     "years": "वर्षे",
-    "connectionError": "कनेक्शन त्रुटी"
+    "connectionError": "कनेक्शन त्रुटी",
+    "initializingCamera": "कॅमेरा सुरू करत आहे...",
+    "physiotherapistRole": "फिजिओथेरपिस्ट",
+    "patientRole": "रुग्ण",
+    "searchPatients": "रुग्ण शोधा..."
   },
   "nav": {
     "dashboard": "डॅशबोर्ड",
     "startWorkout": "वर्कआउट सुरू करा",
-    "reports": "विश्लेषण अहवाल",
+    "reports": "अहवाल",
     "messages": "संदेश",
-    "profile": "प्रोफाइल"
+    "profile": "प्रोफाइल",
+    "myPatients": "माझे रुग्ण"
+  },
+  "dashboard": {
+    "portalName": "फिजिओ-चेक पोर्टल",
+    "hello": "नमस्कार, {{name}}",
+    "overview": "आजच्यासाठी तुमच्या रिकव्हरीचा आढावा येथे आहे.",
+    "startSession": "सत्र सुरू करा",
+    "yourPlan": "तुमची योजना",
+    "syncing": "सिंक करत आहे",
+    "startBtn": "सुरू करा",
+    "noExercises": "सध्या कोणताही व्यायाम दिलेला नाही.",
+    "connectPhysio": "फिजिओथेरपिस्टशी संपर्क साधा",
+    "quickLinks": "क्विक लिंक्स",
+    "library": "लायब्ररी",
+    "libraryDesc": "सर्व व्यायाम ब्राउझ करा",
+    "analytics": "अॅनालिटिक्स",
+    "analyticsDesc": "तुमची प्रगती पहा",
+    "syncError": "व्यायाम सिंक करण्यात अयशस्वी",
+    "stats": {
+      "sessionsThisWeek": "या आठवड्यातील सत्रे",
+      "last7Days": "गेले 7 दिवस",
+      "currentStreak": "सध्याची स्ट्रीक",
+      "days": "दिवस",
+      "active": "सक्रिय",
+      "startToday": "आजच सुरू करा!",
+      "avgAccuracy": "सरासरी अचूकता",
+      "overallAccuracy": "एकूण अचूकता",
+      "totalSessions": "एकूण सत्रे",
+      "allTime": "आतापर्यंत"
+    }
+  },
+  "startWorkout": {
+    "title": "तुमचा वर्कआउट सुरू करा",
+    "subtitle": "रिअल-टाइम एआय फीडबॅकसह सुरू करण्यासाठी व्यायाम निवडा",
+    "allExercises": "सर्व व्यायाम"
   },
   "choosePhysio": {
     "title": "तुमचा फिजिओथेरपिस्ट निवडा",
@@ -82,6 +129,59 @@
     "performanceKeepPracticing": "सराव करत राहा! पोश्चर सूचनांवर लक्ष केंद्रित करा.",
     "excellentForm": "उत्कृष्ट फॉर्म"
   },
+  "workout": {
+    "pause": "विराम",
+    "resume": "पुन्हा सुरू करा",
+    "endWorkout": "वर्कआउट संपवा",
+    "instructionsTitle": "सूचना",
+    "nextExerciseBtn": "पुढचा व्यायाम",
+    "viewSummaryBtn": "सारांश पहा",
+    "setCompletedTitle": "सेट पूर्ण झाला",
+    "setCompletedSub": "उत्कृष्ट! तुम्ही {{count}} रेप्स पूर्ण केले.",
+    "pausedTitle": "विराम",
+    "areYouAlright": "तुम्ही ठीक आहात का?",
+    "painScore": "वेदना स्कोर",
+    "showThumbsUp": "थंब्स अप दाखवा",
+    "toResume": "वर्कआउट पुन्हा सुरू करण्यासाठी",
+    "showThumbsDown": "थंब्स डाऊन दाखवा",
+    "toStop": "वर्कआउट थांबवण्यासाठी",
+    "alignWithGuide": "पिवळ्या रेषेसह संरेखित करा",
+    "idealReference": "आदर्श संदर्भ",
+    "exerciseNotFound": "व्यायाम सापडला नाही",
+    "startBtn": "व्यायाम सुरू करा",
+    "discomfort": "अस्वस्थता",
+    "comfortable": "आरामदायक",
+    "startHere": "इथे सुरू करा",
+    "startingExercise": "{{name}} सुरू करत आहे. कृपया योग्य स्थितीत येण्यासाठी पिवळ्या रेषेचे अनुसरण करा.",
+    "correctRep": "योग्य रेप {{count}}",
+    "incompleteROM": "मोशन रेंज अपूर्ण आहे",
+    "feedback": {
+      "positionYourself": "स्वतःला योग्य स्थितीत ठेवा",
+      "adjustShoulders": "खांदे सेट करा",
+      "returnToStart": "सुरुवातीच्या स्थितीत परत या",
+      "ready": "तयार - व्यायाम सुरू करा",
+      "movingOutbound": "बाहेरच्या दिशेने जात आहे...",
+      "movingInbound": "आतल्या दिशेने येत आहे...",
+      "formBreak": "फॉर्म चुकीचा झाला",
+      "repFailed": "रेप अयशस्वी - सुरुवातीला परत या",
+      "incorrectMovement": "चुकीची हालचाल",
+      "didntExtendFully": "लक्ष्यापर्यंत पूर्णपणे पोहोचला नाही",
+      "jitteryTrajectory": "अस्थिर किंवा चुकीचा मार्ग",
+      "correct": "योग्य!",
+      "quality": "गुणवत्ता",
+      "failed": "अयशस्वी",
+      "incorrectRep": "चुकीचा रेप",
+      "correctVoice": "योग्य",
+      "positionLost": "स्थिती गमावली. पिवळ्या मार्गदर्शकासह पुन्हा संरेखित करा.",
+      "holdPosition": "स्थिती टिकवून ठेवा. {{count}}",
+      "go": "सुरू करा!",
+      "resume": "पुन्हा सुरू करा",
+      "setCompleted": "सेट पूर्ण झाला. उत्कृष्ट काम! सुरू ठेवण्यासाठी स्क्रीनवर पर्याय निवडा.",
+      "workoutCompleted": "वर्कआउट पूर्ण झाले. उत्कृष्ट काम! सारांश पाहण्याचा पर्याय निवडा.",
+      "discomfortDetected": "मला असे वाटते की तुम्हाला अस्वस्थता होत आहे. तुम्ही ठीक आहात का? सुरू ठेवण्यासाठी थंब्स अप दाखवा, किंवा थांबवण्यासाठी थंब्स डाऊन दाखवा.",
+      "resumingExercise": "व्यायाम पुन्हा सुरू करत आहे."
+    }
+  },
   "messages": {
     "initFailed": "चॅट सुरू करण्यात अयशस्वी",
     "unauthorized": "चॅट रूममध्ये अनधिकृत प्रवेश",
@@ -104,6 +204,10 @@
     "noLinkedPatients": "कोणतेही लिंक केलेले रुग्ण आढळले नाहीत.",
     "loadPatientsFailed": "रुग्ण लोड करण्यात अयशस्वी"
   },
+  "physioAnalysis": {
+    "backToProfile": "रुग्णाच्या प्रोफाइलवर परत जा",
+    "condition": "स्थिती"
+  },
   "tracker": {
     "currentAngle": "वर्तमान कोन",
     "initializing": "कॅमेरा आणि पोझ डिटेक्शन सुरू करत आहे...",
@@ -112,6 +216,49 @@
       "outbound": "बाहेरच्या दिशेने",
       "inbound": "आतल्या दिशेने",
       "flexing": "वाकवणे"
+    }
+  },
+  "exercises": {
+    "rotatorCuff": {
+      "name": "रोटेटर कफ",
+      "description": "प्रगत DTW-ट्रॅक केलेले रोटेटर कफ पुनर्वसन.",
+      "instruction0": "कॅमेऱ्याकडे तोंड करून उभे राहा",
+      "instruction1": "कोपर आपल्या बाजूला दाबून ठेवा",
+      "instruction2": "हात हळूवारपणे बाहेरच्या दिशेने वळवा",
+      "instruction3": "सुरुवातीच्या स्थितीत परत या",
+      "cue0": "तुमचा कोपर बाहेर काढू नका",
+      "cue1": "खांदे सरळ ठेवा"
+    },
+    "wallSlides": {
+      "name": "वॉल स्लाइड्स",
+      "description": "खांद्याची हालचाल आणि पाठीची स्थिती सुधारते.",
+      "instruction0": "पाठीला भिंत लावून उभे राहा",
+      "instruction1": "हात 90 अंशांपर्यंत वर घ्या",
+      "instruction2": "भिंतीवर हात वरच्या दिशेने सरकवा",
+      "instruction3": "खाली परत या",
+      "cue0": "पाठीचा खालचा भाग भिंतीला दाबून ठेवा"
+    },
+    "sideRaises": {
+      "name": "साइड रेझेस",
+      "description": "खांद्याची ताकद आणि हालचाल सुधारते.",
+      "instruction0": "सरळ उभे राहा",
+      "instruction1": "हात बाजूला वर घ्या",
+      "instruction2": "हात साधारणतः सरळ ठेवा",
+      "instruction3": "हळूवारपणे खाली घ्या",
+      "cue0": "हात झटक्याने वर घेऊ नका",
+      "cue1": "छाती वर ठेवा"
+    },
+    "category": {
+      "all": "सर्व व्यायाम",
+      "shoulder": "खांदा",
+      "back": "पाठ",
+      "knee": "गुडघा",
+      "hip": "कमर"
+    },
+    "difficulty": {
+      "beginner": "नवशिक्या",
+      "intermediate": "मध्यम",
+      "advanced": "प्रगत"
     }
   }
 }

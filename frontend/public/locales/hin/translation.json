@@ -13,21 +13,68 @@
     "secondsAbbr": "से",
     "totalReps": "कुल रेप्स",
     "correctReps": "सही रेप्स",
+    "accuracyAbbr": "सटीकता",
     "accuracy": "सटीकता",
     "duration": "अवधि",
+    "time": "समय",
+    "reps": "रेप्स",
+    "up": "ऊपर",
+    "down": "नीचे",
+    "stop": "रोकें",
+    "resume": "फिर शुरू करें",
+    "pause": "विराम",
     "week": "सप्ताह",
     "selectExercise": "व्यायाम चुनें",
     "allExercises": "सभी व्यायाम",
     "start": "शुरू करें",
     "years": "वर्ष",
-    "connectionError": "कनेक्शन त्रुटि"
+    "connectionError": "कनेक्शन त्रुटि",
+    "initializingCamera": "कैमरा शुरू हो रहा है...",
+    "physiotherapistRole": "फिजियोथेरेपिस्ट",
+    "patientRole": "मरीज़",
+    "searchPatients": "मरीज़ खोजें..."
   },
   "nav": {
     "dashboard": "डैशबोर्ड",
     "startWorkout": "वर्कआउट शुरू करें",
-    "reports": "विश्लेषण रिपोर्ट",
+    "reports": "रिपोर्ट्स",
     "messages": "संदेश",
-    "profile": "प्रोफ़ाइल"
+    "profile": "प्रोफ़ाइल",
+    "myPatients": "मेरे मरीज़"
+  },
+  "dashboard": {
+    "portalName": "फ़िज़ियो-चेक पोर्टल",
+    "hello": "नमस्ते, {{name}}",
+    "overview": "आज के लिए आपकी रिकवरी का अवलोकन यहाँ है।",
+    "startSession": "सत्र शुरू करें",
+    "yourPlan": "आपकी योजना",
+    "syncing": "सिंक हो रहा है",
+    "startBtn": "शुरू करें",
+    "noExercises": "अभी कोई व्यायाम नहीं दिया गया है।",
+    "connectPhysio": "फिजियोथेरेपिस्ट से जुड़ें",
+    "quickLinks": "त्वरित लिंक",
+    "library": "लाइब्रेरी",
+    "libraryDesc": "सभी व्यायाम देखें",
+    "analytics": "विश्लेषण",
+    "analyticsDesc": "अपनी प्रगति देखें",
+    "syncError": "व्यायाम सिंक करने में विफल",
+    "stats": {
+      "sessionsThisWeek": "इस सप्ताह के सत्र",
+      "last7Days": "पिछले 7 दिन",
+      "currentStreak": "वर्तमान स्ट्रीक",
+      "days": "दिन",
+      "active": "सक्रिय",
+      "startToday": "आज ही शुरू करें!",
+      "avgAccuracy": "औसत सटीकता",
+      "overallAccuracy": "कुल सटीकता",
+      "totalSessions": "कुल सत्र",
+      "allTime": "शुरू से अब तक"
+    }
+  },
+  "startWorkout": {
+    "title": "अपना वर्कआउट शुरू करें",
+    "subtitle": "रीयल-टाइम एआई फीडबैक के साथ शुरू करने के लिए एक व्यायाम चुनें",
+    "allExercises": "सभी व्यायाम"
   },
   "choosePhysio": {
     "title": "अपना फिजियोथेरेपिस्ट चुनें",
@@ -82,6 +129,59 @@
     "performanceKeepPracticing": "अभ्यास करते रहें! पोस्चर संकेतों पर ध्यान दें।",
     "excellentForm": "शानदार फॉर्म"
   },
+  "workout": {
+    "pause": "विराम",
+    "resume": "फिर शुरू करें",
+    "endWorkout": "वर्कआउट समाप्त करें",
+    "instructionsTitle": "निर्देश",
+    "nextExerciseBtn": "अगला व्यायाम",
+    "viewSummaryBtn": "सारांश देखें",
+    "setCompletedTitle": "सेट पूरा हुआ",
+    "setCompletedSub": "बहुत बढ़िया! आपने {{count}} रेप्स पूरे किए।",
+    "pausedTitle": "विराम",
+    "areYouAlright": "क्या आप ठीक हैं?",
+    "painScore": "दर्द का स्कोर",
+    "showThumbsUp": "थम्स अप दिखाएं",
+    "toResume": "वर्कआउट फिर से शुरू करने के लिए",
+    "showThumbsDown": "थम्स डाउन दिखाएं",
+    "toStop": "वर्कआउट रोकने के लिए",
+    "alignWithGuide": "पीली लाइन के साथ संरेखित करें",
+    "idealReference": "आदर्श संदर्भ",
+    "exerciseNotFound": "व्यायाम नहीं मिला",
+    "startBtn": "व्यायाम शुरू करें",
+    "discomfort": "असुविधा",
+    "comfortable": "आरामदायक",
+    "startHere": "यहाँ से शुरू करें",
+    "startingExercise": "{{name}} शुरू कर रहे हैं। कृपया सही स्थिति में आने के लिए पीली लाइन का पालन करें।",
+    "correctRep": "सही रेप {{count}}",
+    "incompleteROM": "मोशन रेंज अधूरा है",
+    "feedback": {
+      "positionYourself": "खुद को सही स्थिति में रखें",
+      "adjustShoulders": "कंधों को सेट करें",
+      "returnToStart": "शुरुआती स्थिति में लौटें",
+      "ready": "तैयार - व्यायाम शुरू करें",
+      "movingOutbound": "बाहर की ओर जा रहे हैं...",
+      "movingInbound": "अंदर की ओर आ रहे हैं...",
+      "formBreak": "फॉर्म गलत हुआ",
+      "repFailed": "रेप विफल - शुरुआत में वापस जाएं",
+      "incorrectMovement": "गलत गतिविधि",
+      "didntExtendFully": "लक्ष्य तक पूरी तरह नहीं बढ़े",
+      "jitteryTrajectory": "अस्थिर या गलत रास्ता",
+      "correct": "सही!",
+      "quality": "गुणवत्ता",
+      "failed": "विफल",
+      "incorrectRep": "गलत रेप",
+      "correctVoice": "सही",
+      "positionLost": "स्थिति खो गई। पीले गाइड के साथ फिर से संरेखित करें।",
+      "holdPosition": "स्थिति बनाए रखें। {{count}}",
+      "go": "शुरू करें!",
+      "resume": "फिर शुरू करें",
+      "setCompleted": "सेट पूरा हुआ। बहुत बढ़िया! जारी रखने के लिए स्क्रीन पर विकल्प चुनें।",
+      "workoutCompleted": "वर्कआउट पूरा हुआ। बहुत बढ़िया! सारांश देखने का विकल्प चुनें।",
+      "discomfortDetected": "मुझे लग रहा है कि आपको असुविधा हो रही है। क्या आप ठीक हैं? जारी रखने के लिए थम्स अप दिखाएं, या रोकने के लिए थम्स डाउन दिखाएं।",
+      "resumingExercise": "व्यायाम फिर से शुरू कर रहे हैं।"
+    }
+  },
   "messages": {
     "initFailed": "चैट आरंभ करने में विफल",
     "unauthorized": "चैट रूम में अनधिकृत पहुंच",
@@ -104,6 +204,10 @@
     "noLinkedPatients": "कोई लिंक किया गया मरीज़ नहीं मिला।",
     "loadPatientsFailed": "मरीज़ों को लोड करने में विफल"
   },
+  "physioAnalysis": {
+    "backToProfile": "मरीज़ की प्रोफ़ाइल पर वापस जाएं",
+    "condition": "स्थिति"
+  },
   "tracker": {
     "currentAngle": "वर्तमान कोण",
     "initializing": "कैमरा और पोज़ डिटेक्शन आरंभ हो रहा है...",
@@ -112,6 +216,49 @@
       "outbound": "बाहर की ओर",
       "inbound": "अंदर की ओर",
       "flexing": "मोड़ना"
+    }
+  },
+  "exercises": {
+    "rotatorCuff": {
+      "name": "रोटेटर कफ",
+      "description": "एडवांस DTW-ट्रैक रोटेटर कफ रिहैबिलिटेशन।",
+      "instruction0": "कैमरे की ओर मुंह करके खड़े हों",
+      "instruction1": "कोहनी को अपनी तरफ दबा कर रखें",
+      "instruction2": "हाथ को धीरे से बाहर की ओर घुमाएं",
+      "instruction3": "शुरुआती स्थिति में लौटें",
+      "cue0": "अपनी कोहनी बाहर न निकालें",
+      "cue1": "कंधों को सीधा रखें"
+    },
+    "wallSlides": {
+      "name": "वॉल स्लाइड्स",
+      "description": "कंधे की गतिशीलता और पीठ के पोस्चर में सुधार करता है।",
+      "instruction0": "दीवार से पीठ लगाकर खड़े हों",
+      "instruction1": "हाथों को 90 डिग्री तक उठाएं",
+      "instruction2": "दीवार पर हाथों को ऊपर की ओर स्लाइड करें",
+      "instruction3": "वापस नीचे लाएं",
+      "cue0": "पीठ के निचले हिस्से को दीवार से सटाकर रखें"
+    },
+    "sideRaises": {
+      "name": "साइड रेज़",
+      "description": "कंधे की ताकत और गतिशीलता में सुधार करता है।",
+      "instruction0": "सीधे खड़े हों",
+      "instruction1": "हाथों को साइड में उठाएं",
+      "instruction2": "हाथों को लगभग सीधा रखें",
+      "instruction3": "धीरे-धीरे नीचे लाएं",
+      "cue0": "हाथों को झटके से न उठाएं",
+      "cue1": "छाती ऊपर रखें"
+    },
+    "category": {
+      "all": "सभी व्यायाम",
+      "shoulder": "कंधा",
+      "back": "पीठ",
+      "knee": "घुटना",
+      "hip": "कूल्हा"
+    },
+    "difficulty": {
+      "beginner": "शुरुआती",
+      "intermediate": "मध्यम",
+      "advanced": "उन्नत"
     }
   }
 }
