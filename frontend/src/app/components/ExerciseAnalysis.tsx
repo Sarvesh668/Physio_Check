@@ -1,5 +1,6 @@
 import { getFirestoreDb } from "../config/firebase";
 import React, { useState, useMemo, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { subscribeToPatientHistory, calculateAnalysisMetrics, SessionSummary } from '../services/workoutSessionService';
 import { AnalysisSummaryCard } from './AnalysisSummaryCard';
 import { Card } from './ui/card';
@@ -36,6 +37,7 @@ interface ExerciseAnalysisProps {
 }
 
 export function ExerciseAnalysis({ patientId, isPhysioView = false }: ExerciseAnalysisProps) {
+  const { t } = useTranslation();
   const [selectedExercise, setSelectedExercise] = useState<string>('all');
   const [timeRange, setTimeRange] = useState<string>('week');
   const [rawSessions, setRawSessions] = useState<SessionSummary[]>([]);
@@ -67,7 +69,7 @@ export function ExerciseAnalysis({ patientId, isPhysioView = false }: ExerciseAn
   }, [patientId]);
 
   const clearData = () => {
-    if (window.confirm("Are you sure you want to clear all workout history?")) {
+    if (window.confirm(t('analysis.confirmClearData', "Are you sure you want to clear all workout history?"))) {
       setRawSessions([]);
       // In a real app, you would also delete from Firestore here if authorized
     }
@@ -131,7 +133,7 @@ export function ExerciseAnalysis({ patientId, isPhysioView = false }: ExerciseAn
     sortedLogs.forEach(log => {
       const d = new Date(log.timestamp);
       const weekNumber = Math.ceil(d.getDate() / 7);
-      const key = `Week ${weekNumber}`;
+      const key = `${t('common.week', 'Week')} ${weekNumber}`;
       if (!weeksMap[key]) weeksMap[key] = { totalAcc: 0, count: 0 };
       weeksMap[key].totalAcc += (log.accuracy || 0);
       weeksMap[key].count += 1;
@@ -173,13 +175,13 @@ export function ExerciseAnalysis({ patientId, isPhysioView = false }: ExerciseAn
       dynamicMonthlyData,
       dynamicHeatmapData
     };
-  }, [selectedExercise, rawSessions]);
+  }, [selectedExercise, rawSessions, t]);
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
         <Activity className="w-8 h-8 animate-spin text-primary" />
-        <span className="ml-2">Loading analysis data...</span>
+        <span className="ml-2">{t('analysis.loading', 'Loading analysis data...')}</span>
       </div>
     );
   }
@@ -189,8 +191,8 @@ export function ExerciseAnalysis({ patientId, isPhysioView = false }: ExerciseAn
       <div className="space-y-8 pb-10">
         <div className="flex flex-col items-center justify-center h-[50vh] space-y-4 border-2 border-dashed border-border rounded-xl bg-muted/20">
           <Activity className="w-16 h-16 text-muted-foreground opacity-50" />
-          <p className="text-xl text-muted-foreground">No sessions logged yet.</p>
-          <p className="text-sm text-muted-foreground">Sessions performed by the patient will appear here for kinematic analysis.</p>
+          <p className="text-xl text-muted-foreground">{t('analysis.noSessions', 'No sessions logged yet.')}</p>
+          <p className="text-sm text-muted-foreground">{t('analysis.noSessionsSub', 'Sessions performed by the patient will appear here for kinematic analysis.')}</p>
         </div>
       </div>
     );
@@ -204,23 +206,23 @@ export function ExerciseAnalysis({ patientId, isPhysioView = false }: ExerciseAn
       {/* HEADER */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold mb-1">Performance Analysis</h2>
-          <p className="text-muted-foreground">Kinematic feedback for recovery monitoring</p>
+          <h2 className="text-2xl font-bold mb-1">{t('analysis.performanceTitle', 'Performance Analysis')}</h2>
+          <p className="text-muted-foreground">{t('analysis.performanceSub', 'Kinematic feedback for recovery monitoring')}</p>
         </div>
         <div className="flex gap-3">
           <Select value={selectedExercise} onValueChange={setSelectedExercise}>
             <SelectTrigger className="w-48">
-              <SelectValue placeholder="Select Exercise" />
+              <SelectValue placeholder={t('common.selectExercise', 'Select Exercise')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Exercises</SelectItem>
+              <SelectItem value="all">{t('common.allExercises', 'All Exercises')}</SelectItem>
               {(exercises || []).slice(0, 5).map(ex => (
-                <SelectItem key={ex.id} value={ex.id}>{ex.name}</SelectItem>
+                <SelectItem key={ex.id} value={ex.id}>{t(`exercises.${ex.id}.name`, ex.name)}</SelectItem>
               ))}
             </SelectContent>
           </Select>
           {!isPhysioView && (
-            <Button variant="destructive" size="icon" onClick={clearData} title="Clear All Data">
+            <Button variant="destructive" size="icon" onClick={clearData} title={t('analysis.clearAllData', "Clear All Data")}>
               <Trash2 className="w-4 h-4" />
             </Button>
           )}
@@ -238,14 +240,14 @@ export function ExerciseAnalysis({ patientId, isPhysioView = false }: ExerciseAn
       {/* DYNAMIC INSIGHTS */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card className="p-6 lg:col-span-2 bg-slate-900 text-white">
-           <h3 className="text-xl mb-4 flex items-center gap-2">🔥 Last Session Performance</h3>
+           <h3 className="text-xl mb-4 flex items-center gap-2">🔥 {t('analysis.lastSessionTitle', 'Last Session Performance')}</h3>
            <div className="grid grid-cols-3 gap-4">
               <div>
-                 <p className="text-white/60 text-sm mb-1">Date</p>
-                 <p className="font-mono text-lg">{new Date(lastSession.timestamp).toLocaleDateString() || 'Recent'}</p>
+                 <p className="text-white/60 text-sm mb-1">{t('common.date', 'Date')}</p>
+                 <p className="font-mono text-lg">{new Date(lastSession.timestamp).toLocaleDateString() || t('common.recent', 'Recent')}</p>
               </div>
               <div>
-                 <p className="text-white/60 text-sm mb-1">Accuracy</p>
+                 <p className="text-white/60 text-sm mb-1">{t('common.accuracy', 'Accuracy')}</p>
                  <p className="font-mono text-lg flex items-center gap-2">
                    {Math.round(lastSession.accuracy || 0)}% 
                    <span className={`text-xs px-2 py-0.5 rounded-full ${lastSession.accTrend >= 0 ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
@@ -254,7 +256,7 @@ export function ExerciseAnalysis({ patientId, isPhysioView = false }: ExerciseAn
                  </p>
               </div>
               <div>
-                 <p className="text-white/60 text-sm mb-1">Correct Reps</p>
+                 <p className="text-white/60 text-sm mb-1">{t('common.correctReps', 'Correct Reps')}</p>
                  <p className="font-mono text-lg text-blue-400">{lastSession.correct_reps || 0} / {lastSession.total_reps || 0}</p>
               </div>
            </div>
@@ -263,12 +265,12 @@ export function ExerciseAnalysis({ patientId, isPhysioView = false }: ExerciseAn
         <Card className={`p-6 border-l-4 ${lastSession.isFatigued ? 'border-l-red-500 bg-red-50' : 'border-l-green-500 bg-green-50'}`}>
            <h3 className="text-lg font-medium flex items-center gap-2 mb-2">
               <AlertCircle className={`w-5 h-5 ${lastSession.isFatigued ? 'text-red-500' : 'text-green-500'}`} />
-              Automated Insight
+              {t('analysis.automatedInsight', 'Automated Insight')}
            </h3>
            <p className="text-sm text-slate-700">
               {lastSession.isFatigued 
-                ? "🛑 Fatigue Detected: Your last session was longer than average, but your accuracy dropped. Consider resting or reducing rep volume." 
-                : "✅ Form is stable. You maintained good accuracy throughout your recent session. Keep it up!"}
+                ? t('analysis.fatigueDetected', "🛑 Fatigue Detected: Your last session was longer than average, but your accuracy dropped. Consider resting or reducing rep volume.") 
+                : t('analysis.formStable', "✅ Form is stable. You maintained good accuracy throughout your recent session. Keep it up!")}
            </p>
         </Card>
       </motion.div>
@@ -277,19 +279,19 @@ export function ExerciseAnalysis({ patientId, isPhysioView = false }: ExerciseAn
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
         <Tabs defaultValue="progress" className="space-y-6">
           <TabsList className={`grid w-full max-w-2xl ${isPhysioView ? 'grid-cols-5' : 'grid-cols-4'}`}>
-            <TabsTrigger value="progress">Progress</TabsTrigger>
-            {isPhysioView && <TabsTrigger value="history">History</TabsTrigger>}
-            <TabsTrigger value="fatigue">Fatigue Analysis</TabsTrigger>
-            <TabsTrigger value="consistency">Consistency</TabsTrigger>
-            <TabsTrigger value="notes">Notes</TabsTrigger>
+            <TabsTrigger value="progress">{t('analysis.tabs.progress', 'Progress')}</TabsTrigger>
+            {isPhysioView && <TabsTrigger value="history">{t('analysis.tabs.history', 'History')}</TabsTrigger>}
+            <TabsTrigger value="fatigue">{t('analysis.tabs.fatigue', 'Fatigue Analysis')}</TabsTrigger>
+            <TabsTrigger value="consistency">{t('analysis.tabs.consistency', 'Consistency')}</TabsTrigger>
+            <TabsTrigger value="notes">{t('analysis.tabs.notes', 'Notes')}</TabsTrigger>
           </TabsList>
 
           {/* DYNAMIC PROGRESS TAB */}
           <TabsContent value="progress" className="space-y-6">
             <Card className="p-6">
               <div className="mb-6">
-                <h3 className="text-lg font-semibold">Progression Trajectory</h3>
-                <p className="text-sm text-muted-foreground">Tracking accuracy % alongside total repetition volume over time.</p>
+                <h3 className="text-lg font-semibold">{t('analysis.progressionTrajectoryTitle', 'Progression Trajectory')}</h3>
+                <p className="text-sm text-muted-foreground">{t('analysis.progressionTrajectorySub', 'Tracking accuracy % alongside total repetition volume over time.')}</p>
               </div>
               <ResponsiveContainer width="100%" height={400}>
                 <ComposedChart data={chartData}>
@@ -299,15 +301,15 @@ export function ExerciseAnalysis({ patientId, isPhysioView = false }: ExerciseAn
                   <YAxis yAxisId="right" orientation="right" stroke="#3b82f6" />
                   <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
                   <Legend />
-                  <Bar yAxisId="right" dataKey="total_reps" name="Total Reps" fill="#bfdbfe" radius={[4, 4, 0, 0]} />
-                  <Bar yAxisId="right" dataKey="correct_reps" name="Correct Reps" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                  <Line yAxisId="left" type="monotone" dataKey="accuracy" name="Accuracy %" stroke="#10b981" strokeWidth={3} dot={{ r: 6, fill: '#10b981' }} />
+                  <Bar yAxisId="right" dataKey="total_reps" name={t('common.totalReps', "Total Reps")} fill="#bfdbfe" radius={[4, 4, 0, 0]} />
+                  <Bar yAxisId="right" dataKey="correct_reps" name={t('common.correctReps', "Correct Reps")} fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                  <Line yAxisId="left" type="monotone" dataKey="accuracy" name={t('common.accuracyPercent', "Accuracy %")} stroke="#10b981" strokeWidth={3} dot={{ r: 6, fill: '#10b981' }} />
                 </ComposedChart>
               </ResponsiveContainer>
             </Card>
 
             <Card className="p-6">
-              <h3 className="mb-6">Weekly Performance Breakdown</h3>
+              <h3 className="mb-6">{t('analysis.weeklyBreakdownTitle', 'Weekly Performance Breakdown')}</h3>
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={dashboardData.dynamicMonthlyData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
@@ -315,8 +317,8 @@ export function ExerciseAnalysis({ patientId, isPhysioView = false }: ExerciseAn
                   <YAxis stroke="#6b7280" />
                   <Tooltip />
                   <Legend />
-                  <Bar dataKey="avgAccuracy" fill="#4a7c99" name="Avg Accuracy %" radius={[8, 8, 0, 0]} />
-                  <Bar dataKey="sessions" fill="#10b981" name="Sessions" radius={[8, 8, 0, 0]} />
+                  <Bar dataKey="avgAccuracy" fill="#4a7c99" name={t('analysis.avgAccuracyPercent', "Avg Accuracy %")} radius={[8, 8, 0, 0]} />
+                  <Bar dataKey="sessions" fill="#10b981" name={t('common.sessions', "Sessions")} radius={[8, 8, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </Card>
@@ -326,7 +328,7 @@ export function ExerciseAnalysis({ patientId, isPhysioView = false }: ExerciseAn
           {isPhysioView && (
             <TabsContent value="history" className="space-y-4">
               <Card className="p-6">
-                <h3 className="text-xl mb-6">Detailed Session Records</h3>
+                <h3 className="text-xl mb-6">{t('analysis.detailedRecordsTitle', 'Detailed Session Records')}</h3>
                 <div className="space-y-3">
                   {rawSessions.map((session, index) => (
                     <div key={session.id} className="border rounded-xl overflow-hidden">
@@ -340,13 +342,13 @@ export function ExerciseAnalysis({ patientId, isPhysioView = false }: ExerciseAn
                           </div>
                           <div>
                             <p className="font-bold">{new Date(session.timestamp).toLocaleString()}</p>
-                            <p className="text-sm text-muted-foreground">{session.exerciseName}</p>
+                            <p className="text-sm text-muted-foreground">{t(`exercises.${session.exerciseId}.name`, session.exerciseName)}</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-6">
                           <div className="text-right hidden sm:block">
                             <p className="text-sm font-bold">{session.accuracy}%</p>
-                            <p className="text-xs text-muted-foreground">Accuracy</p>
+                            <p className="text-xs text-muted-foreground">{t('common.accuracy', 'Accuracy')}</p>
                           </div>
                           {expandedSessions.has(session.id) ? <ChevronUp /> : <ChevronDown />}
                         </div>
@@ -359,19 +361,19 @@ export function ExerciseAnalysis({ patientId, isPhysioView = false }: ExerciseAn
                           className="p-4 border-t bg-background grid grid-cols-2 md:grid-cols-4 gap-4"
                         >
                           <div className="p-3 bg-muted/50 rounded-lg">
-                            <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Duration</p>
-                            <p className="text-lg font-mono">{Math.floor(session.duration / 60)}m {session.duration % 60}s</p>
+                            <p className="text-xs text-muted-foreground uppercase font-bold mb-1">{t('common.duration', 'Duration')}</p>
+                            <p className="text-lg font-mono">{Math.floor(session.duration / 60)}{t('common.minutesAbbr', 'm')} {session.duration % 60}{t('common.secondsAbbr', 's')}</p>
                           </div>
                           <div className="p-3 bg-muted/50 rounded-lg">
-                            <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Accuracy</p>
+                            <p className="text-xs text-muted-foreground uppercase font-bold mb-1">{t('common.accuracy', 'Accuracy')}</p>
                             <p className="text-lg font-mono text-green-600">{session.accuracy}%</p>
                           </div>
                           <div className="p-3 bg-muted/50 rounded-lg">
-                            <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Correct Reps</p>
+                            <p className="text-xs text-muted-foreground uppercase font-bold mb-1">{t('common.correctReps', 'Correct Reps')}</p>
                             <p className="text-lg font-mono text-blue-600">{session.correct_reps}</p>
                           </div>
                           <div className="p-3 bg-muted/50 rounded-lg">
-                            <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Total Reps</p>
+                            <p className="text-xs text-muted-foreground uppercase font-bold mb-1">{t('common.totalReps', 'Total Reps')}</p>
                             <p className="text-lg font-mono">{session.total_reps}</p>
                           </div>
                         </motion.div>
@@ -387,18 +389,18 @@ export function ExerciseAnalysis({ patientId, isPhysioView = false }: ExerciseAn
           <TabsContent value="fatigue" className="space-y-6">
             <Card className="p-6">
               <div className="mb-6">
-                <h3 className="text-lg font-semibold">Fatigue Analysis</h3>
-                <p className="text-sm text-muted-foreground">Duration vs Accuracy. Larger bubbles mean more reps. Warmer colors indicate higher quality.</p>
+                <h3 className="text-lg font-semibold">{t('analysis.fatigueAnalysisTitle', 'Fatigue Analysis')}</h3>
+                <p className="text-sm text-muted-foreground">{t('analysis.fatigueAnalysisSub', 'Duration vs Accuracy. Larger bubbles mean more reps. Warmer colors indicate higher quality.')}</p>
               </div>
               <ResponsiveContainer width="100%" height={400}>
                 <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis type="number" dataKey="duration" name="Duration" unit="s" stroke="#6b7280" />
-                  <YAxis type="number" dataKey="accuracy" name="Accuracy" unit="%" domain={[0, 100]} stroke="#6b7280" />
-                  <ZAxis type="number" dataKey="total_reps" range={[100, 1000]} name="Volume" />
+                  <XAxis type="number" dataKey="duration" name={t('common.duration', "Duration")} unit="s" stroke="#6b7280" />
+                  <YAxis type="number" dataKey="accuracy" name={t('common.accuracy', "Accuracy")} unit="%" domain={[0, 100]} stroke="#6b7280" />
+                  <ZAxis type="number" dataKey="total_reps" range={[100, 1000]} name={t('common.volume', "Volume")} />
                   <Tooltip cursor={{ strokeDasharray: '3 3' }} />
                   <Legend />
-                  <Scatter name="Training Sessions" data={chartData} fill="#f59e0b" fillOpacity={0.7} />
+                  <Scatter name={t('analysis.trainingSessions', "Training Sessions")} data={chartData} fill="#f59e0b" fillOpacity={0.7} />
                 </ScatterChart>
               </ResponsiveContainer>
             </Card>
@@ -407,38 +409,38 @@ export function ExerciseAnalysis({ patientId, isPhysioView = false }: ExerciseAn
                       {/* DYNAMIC CONSISTENCY TAB */}
                       <TabsContent value="consistency" className="space-y-6">
                         <Card className="p-6">
-                          <h3 className="mb-6">Session Consistency Score</h3>
+                          <h3 className="mb-6">{t('analysis.consistencyTitle', 'Session Consistency Score')}</h3>
                           <ResponsiveContainer width="100%" height={300}>
                             <BarChart data={chartData}>
                               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                               <XAxis dataKey="session_idx" stroke="#6b7280" />
                               <YAxis stroke="#6b7280" domain={[0, 100]} />
                               <Tooltip />
-                              <Bar dataKey="consistency" fill="#4a7c99" name="Consistency %" radius={[8, 8, 0, 0]} />
+                              <Bar dataKey="consistency" fill="#4a7c99" name={t('analysis.consistencyPercent', "Consistency %")} radius={[8, 8, 0, 0]} />
                             </BarChart>
                           </ResponsiveContainer>
                         </Card>
             <Card className="p-6">
-              <h3 className="mb-4">Activity Heatmap - Last 90 Days</h3>
+              <h3 className="mb-4">{t('analysis.activityHeatmapTitle', 'Activity Heatmap - Last 90 Days')}</h3>
               <div className="overflow-x-auto">
                 <div className="inline-grid grid-cols-13 gap-2">
                   {dashboardData.dynamicHeatmapData.map((day, index) => (
                     <div
                       key={index}
                       className={`w-3 h-3 rounded-sm ${getIntensityColor(day.intensity)}`}
-                      title={`${day.date}: ${day.intensity} sessions`}
+                      title={`${day.date}: ${day.intensity} ${t('common.sessions', 'sessions')}`}
                     />
                   ))}
                 </div>
               </div>
               <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
-                <span className="text-sm text-muted-foreground">Less</span>
+                <span className="text-sm text-muted-foreground">{t('common.less', 'Less')}</span>
                 <div className="flex gap-1">
                   {[0, 1, 2, 3, 4].map((intensity) => (
                     <div key={intensity} className={`w-4 h-4 rounded-sm ${getIntensityColor(intensity)}`} />
                   ))}
                 </div>
-                <span className="text-sm text-muted-foreground">More</span>
+                <span className="text-sm text-muted-foreground">{t('common.more', 'More')}</span>
               </div>
             </Card>
           </TabsContent>
@@ -447,11 +449,11 @@ export function ExerciseAnalysis({ patientId, isPhysioView = false }: ExerciseAn
                     <TabsContent value="notes" className="space-y-6">
                       <Card className="p-6">
                         <div className="flex items-center justify-between mb-6">
-                          <h3>Physiotherapist Notes & Guidance</h3>
+                          <h3>{t('analysis.physioNotesTitle', 'Physiotherapist Notes & Guidance')}</h3>
                           {!isPhysioView ? (
-                            <Button variant="outline" size="sm">Request Note</Button>
+                            <Button variant="outline" size="sm">{t('analysis.requestNote', 'Request Note')}</Button>
                           ) : (
-                            <Button variant="outline" size="sm">Add Note</Button>
+                            <Button variant="outline" size="sm">{t('analysis.addNote', 'Add Note')}</Button>
                           )}
                         </div>
                         <div className="space-y-4">
@@ -464,7 +466,7 @@ export function ExerciseAnalysis({ patientId, isPhysioView = false }: ExerciseAn
                                   </div>
                                   <div className="flex-1">
                                     <div className="flex items-center justify-between mb-2">
-                                      <p className="font-medium">{isPhysioView ? 'You' : 'Physiotherapist'}</p>
+                                      <p className="font-medium">{isPhysioView ? t('common.you', 'You') : t('common.physiotherapist', 'Physiotherapist')}</p>
                                       <p className="text-xs text-muted-foreground">{note.date}</p>
                                     </div>
                                     <p className="text-sm text-muted-foreground mb-2">{note.note}</p>
@@ -479,7 +481,7 @@ export function ExerciseAnalysis({ patientId, isPhysioView = false }: ExerciseAn
                             <div className="text-center py-12 border-2 border-dashed rounded-xl">
                               <FileText className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
                               <p className="text-muted-foreground">
-                                {isPhysioView ? 'You haven\'t added any notes for this patient yet.' : 'Waiting for physiotherapist feedback...'}
+                                {isPhysioView ? t('analysis.noNotesPhysio', 'You haven\'t added any notes for this patient yet.') : t('analysis.noNotesPatient', 'Waiting for physiotherapist feedback...')}
                               </p>
                             </div>
                           )}

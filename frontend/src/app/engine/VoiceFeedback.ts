@@ -1,176 +1,161 @@
 /**
- * Voice Feedback System
- * Provides real-time audio feedback using browser speech synthesis
+ * Voice Feedback System (FINAL STABLE VERSION)
  */
+import i18n from '../../i18n';
+
+// Prevent Chrome Garbage Collection bug
+const activeUtterances: SpeechSynthesisUtterance[] = [];
 
 export class VoiceFeedback {
   private synth: SpeechSynthesis;
+  private voices: SpeechSynthesisVoice[] = [];
+  private ready: boolean = false;
   private lastAnnouncement: string = '';
   private lastAnnouncementTime: number = 0;
-  private minTimeBetweenAnnouncements: number = 2000; // 2 seconds
+  private minTimeBetweenAnnouncements: number = 2000;
   private enabled: boolean = true;
-  private voice: SpeechSynthesisVoice | null = null;
+  private pendingQueue: string[] = [];
 
   constructor() {
     this.synth = window.speechSynthesis;
-    this.loadVoice();
+    this.initializeVoices();
   }
 
-  /**
-   * Load preferred voice
-   */
-  private loadVoice(): void {
-    const voices = this.synth.getVoices();
-    
-    if (voices.length === 0) {
-      // Voices not loaded yet, try again
-      this.synth.onvoiceschanged = () => {
-        this.loadVoice();
-      };
+  private initializeVoices(): void {
+    const load = () => {
+      const voices = this.synth.getVoices();
+      if (voices.length > 0) {
+        this.voices = voices;
+        this.ready = true;
+        console.log('[Voice] Engine Ready. Voices loaded:', voices.length);
+
+        if (this.pendingQueue.length > 0) {
+          const text = this.pendingQueue.shift();
+          if (text) this.speak(text);
+          this.pendingQueue = []; // Clear queue after first important flush
+        }
+      }
+    };
+
+    load();
+    if (this.synth.onvoiceschanged !== undefined) {
+      this.synth.onvoiceschanged = load;
+    }
+
+    // Fallback polling for initialization
+    const interval = setInterval(() => {
+      if (this.ready) clearInterval(interval);
+      else load();
+    }, 500);
+  }
+
+  private resolveLang(): string {
+    const lang = i18n.language || 'en';
+    if (lang.startsWith('hin') || lang.startsWith('hi')) return 'hi-IN';
+    if (lang.startsWith('mar') || lang.startsWith('mr')) return 'mr-IN';
+    if (lang.startsWith('es')) return 'es-ES';
+    return 'en-US';
+  }
+
+  private getBestVoice(targetLang: string): SpeechSynthesisVoice | null {
+    if (!this.voices.length) return null;
+
+    // Direct match (prefers Female/Google)
+    let voice = this.voices.find(v => v.lang === targetLang && (v.name.includes('Female') || v.name.includes('Google'))) ||
+                this.voices.find(v => v.lang === targetLang);
+
+    // Marathi -> Hindi fallback (Crucial for Windows/iOS where Marathi voices are often missing)
+    if (!voice && targetLang === 'mr-IN') {
+      console.warn('[Voice] Marathi voice missing, falling back to Hindi engine');
+      voice = this.voices.find(v => v.lang === 'hi-IN' && v.name.includes('Google')) ||
+              this.voices.find(v => v.lang === 'hi-IN');
+    }
+
+    return voice || null;
+  }
+
+  private speak(text: string): void {
+    if (!this.enabled || !text) return;
+
+    if (!this.ready) {
+      console.log('[Voice] Queueing:', text);
+      this.pendingQueue.push(text);
       return;
     }
 
-    // Prefer English female voice if available
-    this.voice = voices.find(voice => 
-      voice.lang.startsWith('en') && voice.name.includes('Female')
-    ) || voices.find(voice => 
-      voice.lang.startsWith('en')
-    ) || voices[0];
+    // Only cancel if already speaking to prevent "rapid-fire" overlapping
+    if (this.synth.speaking) {
+      this.synth.cancel();
+      // Small timeout after cancel is safer for the browser hardware
+      setTimeout(() => this.executeSpeak(text), 50);
+    } else {
+      this.executeSpeak(text);
+    }
   }
 
-  /**
-   * Speak a message
-   */
-  private speak(text: string): void {
-    if (!this.enabled) return;
-
-    // Cancel any ongoing speech
-    this.synth.cancel();
-
+  private executeSpeak(text: string): void {
+    console.log('[Voice] Speaking:', text);
     const utterance = new SpeechSynthesisUtterance(text);
+    const lang = this.resolveLang();
     
-    if (this.voice) {
-      utterance.voice = this.voice;
-    }
-    
-    utterance.rate = 1.0;
+    utterance.lang = lang;
+    const voice = this.getBestVoice(lang);
+    if (voice) utterance.voice = voice;
+
+    utterance.rate = 0.9; // Slightly slower for better clarity in instructions
     utterance.pitch = 1.0;
-    utterance.volume = 0.8;
+    utterance.volume = 1.0;
+
+    // GC protection
+    activeUtterances.push(utterance);
+    utterance.onend = () => {
+      const i = activeUtterances.indexOf(utterance);
+      if (i > -1) activeUtterances.splice(i, 1);
+    };
 
     this.synth.speak(utterance);
   }
 
-  /**
-   * Announce correct rep
-   */
+  private canSpeak(message: string): boolean {
+    const now = Date.now();
+    // Prevent repeating the exact same message too fast
+    if (message === this.lastAnnouncement && (now - this.lastAnnouncementTime < this.minTimeBetweenAnnouncements)) {
+      return false;
+    }
+    // General rate limit
+    if (now - this.lastAnnouncementTime < 1500) return false;
+
+    this.lastAnnouncement = message;
+    this.lastAnnouncementTime = now;
+    return true;
+  }
+
   public announceCorrectRep(repNumber: number): void {
-    const now = Date.now();
-    if (now - this.lastAnnouncementTime < this.minTimeBetweenAnnouncements) {
-      return;
-    }
-
-    const message = `Correct rep ${repNumber}`;
-    this.speak(message);
-    
-    this.lastAnnouncement = message;
-    this.lastAnnouncementTime = now;
+    const message = i18n.t('workout.correctRep', { defaultValue: `Correct rep ${repNumber}`, count: repNumber });
+    if (this.canSpeak(message)) this.speak(message);
   }
 
-  /**
-   * Announce incomplete range
-   */
   public announceIncompleteRange(): void {
-    const now = Date.now();
-    if (now - this.lastAnnouncementTime < this.minTimeBetweenAnnouncements) {
-      return;
-    }
-
-    const message = 'Incomplete range of motion';
-    this.speak(message);
-    
-    this.lastAnnouncement = message;
-    this.lastAnnouncementTime = now;
+    const message = i18n.t('workout.incompleteROM', { defaultValue: 'Incomplete range of motion' });
+    if (this.canSpeak(message)) this.speak(message);
   }
 
-  /**
-   * Announce alignment correction
-   */
   public announceAlignment(instruction: string): void {
-    const now = Date.now();
-    if (now - this.lastAnnouncementTime < this.minTimeBetweenAnnouncements) {
-      return;
-    }
-
-    this.speak(instruction);
-    
-    this.lastAnnouncement = instruction;
-    this.lastAnnouncementTime = now;
+    if (this.canSpeak(instruction)) this.speak(instruction);
   }
 
-  /**
-   * Announce general instruction
-   */
   public announce(message: string): void {
-    const now = Date.now();
-    
-    // Don't repeat same message too quickly
-    if (message === this.lastAnnouncement && 
-        now - this.lastAnnouncementTime < this.minTimeBetweenAnnouncements) {
-      return;
-    }
-
-    this.speak(message);
-    
-    this.lastAnnouncement = message;
-    this.lastAnnouncementTime = now;
+    if (this.canSpeak(message)) this.speak(message);
   }
 
-  /**
-   * Enable voice feedback
-   */
-  public enable(): void {
-    this.enabled = true;
-  }
-
-  /**
-   * Disable voice feedback
-   */
-  public disable(): void {
-    this.enabled = false;
-    this.synth.cancel();
-  }
-
-  /**
-   * Toggle voice feedback
-   */
-  public toggle(): void {
-    this.enabled = !this.enabled;
-    if (!this.enabled) {
-      this.synth.cancel();
-    }
-  }
-
-  /**
-   * Check if enabled
-   */
-  public isEnabled(): boolean {
-    return this.enabled;
-  }
-
-  /**
-   * Stop all speech
-   */
-  public stop(): void {
-    this.synth.cancel();
-  }
+  public enable(): void { this.enabled = true; }
+  public disable(): void { this.enabled = false; this.synth.cancel(); }
+  public stop(): void { this.synth.cancel(); }
+  public isEnabled(): boolean { return this.enabled; }
 }
 
-// Singleton instance
-let voiceFeedbackInstance: VoiceFeedback | null = null;
-
+let instance: VoiceFeedback | null = null;
 export function getVoiceFeedback(): VoiceFeedback {
-  if (!voiceFeedbackInstance) {
-    voiceFeedbackInstance = new VoiceFeedback();
-  }
-  return voiceFeedbackInstance;
+  if (!instance) instance = new VoiceFeedback();
+  return instance;
 }

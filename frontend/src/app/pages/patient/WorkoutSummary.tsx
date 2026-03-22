@@ -1,6 +1,7 @@
 //E:\techfiesta_final\Physio_Check\frontend\src\app\pages\patient\WorkoutSummary.tsx
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { Card } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
@@ -27,6 +28,7 @@ interface LocationState {
 }
 
 export function WorkoutSummary() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const state = location.state as LocationState;
@@ -41,14 +43,14 @@ export function WorkoutSummary() {
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins}m ${secs}s`;
+    return `${mins}${t('common.minutesAbbr', 'm')} ${secs}${t('common.secondsAbbr', 's')}`;
   };
 
   const getPerformanceMessage = () => {
-    if (metrics.accuracy >= 90) return "Excellent work! Your form was outstanding.";
-    if (metrics.accuracy >= 75) return "Great job! Keep focusing on your technique.";
-    if (metrics.accuracy >= 60) return "Good effort! Practice will improve your form.";
-    return "Keep practicing! Focus on the posture cues.";
+    if (metrics.accuracy >= 90) return t('workoutSummary.performanceExcellent', "Excellent work! Your form was outstanding.");
+    if (metrics.accuracy >= 75) return t('workoutSummary.performanceGreat', "Great job! Keep focusing on your technique.");
+    if (metrics.accuracy >= 60) return t('workoutSummary.performanceGood', "Good effort! Practice will improve your form.");
+    return t('workoutSummary.performanceKeepPracticing', "Keep practicing! Focus on the posture cues.");
   };
 
   const getPerformanceColor = () => {
@@ -75,9 +77,9 @@ export function WorkoutSummary() {
           <div className="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-4">
             <CheckCircle2 className="w-10 h-10 text-green-600" />
           </div>
-          <h1 className="text-3xl mb-2">Workout Complete!</h1>
+          <h1 className="text-3xl mb-2">{t('workoutSummary.complete', 'Workout Complete!')}</h1>
           <p className="text-muted-foreground">
-            You've successfully completed {exercise.name}
+            {t('workoutSummary.successSubtitle', `You've successfully completed {{name}}`, { name: t(`exercises.${exercise.id}.name`, exercise.name) })}
           </p>
         </motion.div>
 
@@ -93,7 +95,7 @@ export function WorkoutSummary() {
               <Activity className="w-6 h-6 text-primary" />
             </div>
             <p className="text-3xl mb-1">{metrics.total_reps}</p>
-            <p className="text-sm text-muted-foreground">Total Reps</p>
+            <p className="text-sm text-muted-foreground">{t('common.totalReps', 'Total Reps')}</p>
           </Card>
 
           <Card className="p-6 text-center">
@@ -101,7 +103,7 @@ export function WorkoutSummary() {
               <CheckCircle2 className="w-6 h-6 text-green-600" />
             </div>
             <p className="text-3xl mb-1">{metrics.correct_reps}</p>
-            <p className="text-sm text-muted-foreground">Correct Reps</p>
+            <p className="text-sm text-muted-foreground">{t('common.correctReps', 'Correct Reps')}</p>
           </Card>
 
           <Card className="p-6 text-center">
@@ -109,7 +111,7 @@ export function WorkoutSummary() {
               <Target className="w-6 h-6 text-blue-600" />
             </div>
             <p className="text-3xl mb-1">{metrics.accuracy}%</p>
-            <p className="text-sm text-muted-foreground">Accuracy</p>
+            <p className="text-sm text-muted-foreground">{t('common.accuracy', 'Accuracy')}</p>
           </Card>
 
           <Card className="p-6 text-center">
@@ -117,7 +119,7 @@ export function WorkoutSummary() {
               <Clock className="w-6 h-6 text-amber-600" />
             </div>
             <p className="text-3xl mb-1">{formatDuration(metrics.duration)}</p>
-            <p className="text-sm text-muted-foreground">Duration</p>
+            <p className="text-sm text-muted-foreground">{t('common.duration', 'Duration')}</p>
           </Card>
         </motion.div>
 
@@ -133,17 +135,17 @@ export function WorkoutSummary() {
                 <TrendingUp className="w-6 h-6" />
               </div>
               <div className="flex-1">
-                <h3 className="mb-2">Performance Feedback</h3>
+                <h3 className="mb-2">{t('workoutSummary.performanceTitle', 'Performance Feedback')}</h3>
                 <p className="text-muted-foreground mb-4">{getPerformanceMessage()}</p>
                 <div className="flex flex-wrap gap-2">
                   {metrics.accuracy >= 75 && (
-                    <Badge className="bg-green-100 text-green-700">Excellent Form</Badge>
+                    <Badge className="bg-green-100 text-green-700">{t('workoutSummary.excellentForm', 'Excellent Form')}</Badge>
                   )}
                   {metrics.total_reps >= 10 && (
-                    <Badge className="bg-blue-100 text-blue-700">Strong Endurance</Badge>
+                    <Badge className="bg-blue-100 text-blue-700">{t('workoutSummary.strongEndurance', 'Strong Endurance')}</Badge>
                   )}
                   {metrics.correct_reps === metrics.total_reps && metrics.total_reps > 0 && (
-                    <Badge className="bg-purple-100 text-purple-700">Perfect Session</Badge>
+                    <Badge className="bg-purple-100 text-purple-700">{t('workoutSummary.perfectSession', 'Perfect Session')}</Badge>
                   )}
                 </div>
               </div>
@@ -158,51 +160,51 @@ export function WorkoutSummary() {
           transition={{ delay: 0.5 }}
         >
           <Card className="p-6 mb-8 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
-            <h3 className="mb-3">AI Analysis</h3>
+            <h3 className="mb-3">{t('workoutSummary.aiAnalysisTitle', 'AI Analysis')}</h3>
             <ul className="space-y-2 text-sm">
               {metrics.accuracy >= 80 ? (
                 <>
                   <li className="flex gap-2">
                     <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
-                    <span>Your form consistency has been excellent throughout the session</span>
+                    <span>{t('workoutSummary.aiAnalysis.excellentConsistency', 'Your form consistency has been excellent throughout the session')}</span>
                   </li>
                   <li className="flex gap-2">
                     <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
-                    <span>Movement speed is well-controlled</span>
+                    <span>{t('workoutSummary.aiAnalysis.speedControlled', 'Movement speed is well-controlled')}</span>
                   </li>
                   <li className="flex gap-2">
                     <Activity className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
-                    <span>Consider gradually increasing difficulty in next sessions</span>
+                    <span>{t('workoutSummary.aiAnalysis.increaseDifficulty', 'Consider gradually increasing difficulty in next sessions')}</span>
                   </li>
                 </>
               ) : metrics.accuracy >= 60 ? (
                 <>
                   <li className="flex gap-2">
                     <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
-                    <span>Good effort - you're making progress</span>
+                    <span>{t('workoutSummary.aiAnalysis.goodEffort', "Good effort - you're making progress")}</span>
                   </li>
                   <li className="flex gap-2">
                     <Activity className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
-                    <span>Focus on completing full range of motion for each rep</span>
+                    <span>{t('workoutSummary.aiAnalysis.focusROM', 'Focus on completing full range of motion for each rep')}</span>
                   </li>
                   <li className="flex gap-2">
                     <Activity className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
-                    <span>Review the posture cues to improve technique</span>
+                    <span>{t('workoutSummary.aiAnalysis.reviewPosture', 'Review the posture cues to improve technique')}</span>
                   </li>
                 </>
               ) : (
                 <>
                   <li className="flex gap-2">
                     <Activity className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
-                    <span>Work on achieving full range of motion</span>
+                    <span>{t('workoutSummary.aiAnalysis.workROM', 'Work on achieving full range of motion')}</span>
                   </li>
                   <li className="flex gap-2">
                     <Activity className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
-                    <span>Take your time and focus on proper form over speed</span>
+                    <span>{t('workoutSummary.aiAnalysis.properFormOverSpeed', 'Take your time and focus on proper form over speed')}</span>
                   </li>
                   <li className="flex gap-2">
                     <Activity className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
-                    <span>Consider reviewing the exercise instructions before your next session</span>
+                    <span>{t('workoutSummary.aiAnalysis.reviewInstructions', 'Consider reviewing the exercise instructions before your next session')}</span>
                   </li>
                 </>
               )}
@@ -223,13 +225,13 @@ export function WorkoutSummary() {
             className="flex-1 h-12"
           >
             <Home className="w-5 h-5 mr-2" />
-            Back to Dashboard
+            {t('common.backToDashboard', 'Back to Dashboard')}
           </Button>
           <Button
             onClick={() => navigate('/reports')}
             className="flex-1 h-12 bg-primary hover:bg-primary/90"
           >
-            View Detailed Analytics
+            {t('workoutSummary.viewAnalytics', 'View Detailed Analytics')}
             <ArrowRight className="w-5 h-5 ml-2" />
           </Button>
         </motion.div>
@@ -241,7 +243,7 @@ export function WorkoutSummary() {
           transition={{ delay: 0.7 }}
           className="text-center text-sm text-muted-foreground mt-6"
         >
-          Your progress has been saved automatically
+          {t('workoutSummary.autoSave', 'Your progress has been saved automatically')}
         </motion.p>
       </motion.div>
     </div>

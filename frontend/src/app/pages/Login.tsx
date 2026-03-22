@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
@@ -11,6 +12,7 @@ import { motion } from 'motion/react';
 export function Login() {
   const navigate = useNavigate();
   const { login, user } = useAuth();
+  const { t } = useTranslation(); // Initialize translation hook
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
@@ -38,7 +40,7 @@ export function Login() {
         }
       }
     } catch (err) {
-      setError('Invalid email or password');
+      setError(t('auth.invalidLogin', 'Invalid email or password'));
     } finally {
       setLoading(false);
     }
@@ -63,9 +65,9 @@ export function Login() {
             >
               <Activity className="w-8 h-8 text-primary" strokeWidth={2} />
             </motion.div>
-            <h2 className="text-3xl mb-2">Welcome Back</h2>
+            <h2 className="text-3xl mb-2">{t('auth.welcomeBack', 'Welcome Back')}</h2>
             <p className="text-muted-foreground">
-              Sign in to continue your recovery journey
+              {t('auth.signInDesc', 'Sign in to continue your recovery journey')}
             </p>
           </div>
 
@@ -81,7 +83,7 @@ export function Login() {
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="email">Email Address</Label>
+              <Label htmlFor="email">{t('auth.email', 'Email Address')}</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input
@@ -98,12 +100,12 @@ export function Login() {
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">{t('auth.password', 'Password')}</Label>
                 <Link
                   to="/forgot-password"
                   className="text-sm text-primary hover:underline"
                 >
-                  Forgot password?
+                  {t('auth.forgotPassword', 'Forgot password?')}
                 </Link>
               </div>
               <div className="relative">
@@ -137,7 +139,7 @@ export function Login() {
                 htmlFor="remember"
                 className="text-sm text-muted-foreground cursor-pointer"
               >
-                Remember me for 30 days
+                {t('auth.rememberMe', 'Remember me for 30 days')}
               </label>
             </div>
 
@@ -149,10 +151,10 @@ export function Login() {
               {loading ? (
                 <div className="flex items-center justify-center">
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                  Signing in...
+                  {t('auth.signingIn', 'Signing in...')}
                 </div>
               ) : (
-                'Sign In'
+                t('auth.signIn', 'Sign In')
               )}
             </Button>
           </form>
@@ -164,7 +166,7 @@ export function Login() {
               </div>
               <div className="relative flex justify-center text-sm">
                 <span className="px-4 bg-white text-muted-foreground">
-                  Don't have an account?
+                  {t('auth.noAccount', "Don't have an account?")}
                 </span>
               </div>
             </div>
@@ -174,20 +176,20 @@ export function Login() {
                 variant="outline"
                 className="w-full h-12 rounded-xl mt-4 border-2 hover:border-primary hover:text-primary transition-all"
               >
-                Create Account
+                {t('auth.createAccount', 'Create Account')}
               </Button>
             </Link>
           </div>
 
           <div className="mt-6 text-center text-xs text-muted-foreground">
             <p>
-              By signing in, you agree to our{' '}
+              {t('auth.agreeText', 'By signing in, you agree to our')}{' '}
               <a href="#" className="text-primary hover:underline">
-                Terms of Service
+                {t('auth.terms', 'Terms of Service')}
               </a>{' '}
-              and{' '}
+              {t('auth.and', 'and')}{' '}
               <a href="#" className="text-primary hover:underline">
-                Privacy Policy
+                {t('auth.privacy', 'Privacy Policy')}
               </a>
             </p>
           </div>
@@ -199,7 +201,7 @@ export function Login() {
           transition={{ delay: 0.3 }}
           className="text-center text-sm text-muted-foreground mt-6"
         >
-          Demo: Use any email to sign in or create an account
+          {t('auth.demoText', 'Demo: Use any email to sign in or create an account')}
         </motion.p>
       </motion.div>
     </div>

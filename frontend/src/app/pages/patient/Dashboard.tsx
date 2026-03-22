@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { PatientLayout } from '../../components/layouts/PatientLayout';
 import { Card } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
@@ -20,6 +21,7 @@ interface AssignedExercise {
 export function Dashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useTranslation(); // Initialize translation hook
   const [assignedExercises, setAssignedExercises] = useState<AssignedExercise[]>([]);
   const [loading, setLoading] = useState(true);
   
@@ -56,14 +58,13 @@ export function Dashboard() {
       setLoading(false);
     }, (error) => {
       console.error('Error listening to exercise updates:', error);
-      toast.error('Failed to sync exercises in real-time');
+      toast.error(t('dashboard.syncError', 'Failed to sync exercises in real-time'));
       setLoading(false);
     });
 
     // 2. Fetch Actual Workout Stats
     const fetchStats = async () => {
       try {
-        // CRITICAL FIX: Point directly to the nested collection your service file uses!
         const sessionsRef = collection(db, 'patient_sessions', user.id, 'sessions');
         const snapshot = await getDocs(sessionsRef);
         
@@ -79,7 +80,6 @@ export function Dashboard() {
           const data = doc.data();
           totalAcc += data.accuracy || 0;
           
-          // CRITICAL FIX: Parse the ISO strings that your service file saves
           let sessionDate = new Date();
           if (data.timestamp) sessionDate = new Date(data.timestamp);
           else if (data.server_timestamp) sessionDate = new Date(data.server_timestamp);
@@ -104,7 +104,7 @@ export function Dashboard() {
           yesterday.setDate(yesterday.getDate() - 1);
           const yesterdayStr = yesterday.toISOString().split('T')[0];
 
-          // Check if streak is currently active (worked out today or yesterday)
+          // Check if streak is currently active
           if (uniqueDays[0] === todayStr || uniqueDays[0] === yesterdayStr) {
             currentStreak = 1;
             let checkDate = new Date(uniqueDays[0]);
@@ -139,13 +139,13 @@ export function Dashboard() {
     fetchStats();
 
     return () => unsubscribe();
-  }, [user?.id]);
+  }, [user?.id, t]);
 
   const stats = [
-    { label: 'Sessions This Week', value: statsData.sessionsThisWeek.toString(), icon: Activity, color: 'text-primary', trend: 'Last 7 days' },
-    { label: 'Current Streak', value: `${statsData.streak} Days`, icon: Calendar, color: 'text-amber-600', trend: statsData.streak > 0 ? 'Active' : 'Start today!' },
-    { label: 'Avg. Accuracy', value: `${statsData.avgAccuracy}%`, icon: TrendingUp, color: 'text-green-600', trend: 'Overall accuracy' },
-    { label: 'Total Sessions', value: statsData.totalSessions.toString(), icon: Target, color: 'text-blue-600', trend: 'All time' }
+    { label: t('dashboard.stats.sessionsThisWeek', 'Sessions This Week'), value: statsData.sessionsThisWeek.toString(), icon: Activity, color: 'text-primary', trend: t('dashboard.stats.last7Days', 'Last 7 days') },
+    { label: t('dashboard.stats.currentStreak', 'Current Streak'), value: `${statsData.streak} ${t('dashboard.stats.days', 'Days')}`, icon: Calendar, color: 'text-amber-600', trend: statsData.streak > 0 ? t('dashboard.stats.active', 'Active') : t('dashboard.stats.startToday', 'Start today!') },
+    { label: t('dashboard.stats.avgAccuracy', 'Avg. Accuracy'), value: `${statsData.avgAccuracy}%`, icon: TrendingUp, color: 'text-green-600', trend: t('dashboard.stats.overallAccuracy', 'Overall accuracy') },
+    { label: t('dashboard.stats.totalSessions', 'Total Sessions'), value: statsData.totalSessions.toString(), icon: Target, color: 'text-blue-600', trend: t('dashboard.stats.allTime', 'All time') }
   ];
 
   const getExerciseTargetId = (dbName: string) => {
@@ -170,19 +170,19 @@ export function Dashboard() {
           className="flex flex-col md:flex-row md:items-end justify-between gap-4"
         >
           <div>
-            <p className="text-sm font-medium text-primary mb-1 tracking-wide uppercase">Physio-Check Portal</p>
+            <p className="text-sm font-medium text-primary mb-1 tracking-wide uppercase">{t('dashboard.portalName', 'Physio-Check Portal')}</p>
             <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-              Hello, {user?.name?.split(' ')[0] || 'there'}
+              {t('dashboard.hello', 'Hello, {{name}}', { name: user?.name?.split(' ')[0] || 'there' })}
             </h1>
             <p className="text-muted-foreground mt-1">
-              Here is your active recovery overview for today.
+              {t('dashboard.overview', 'Here is your active recovery overview for today.')}
             </p>
           </div>
           <Button 
             onClick={() => navigate('/start-workout')}
             className="shrink-0 rounded-full px-6"
           >
-            Start Session <ArrowRight className="w-4 h-4 ml-2" />
+            {t('dashboard.startSession', 'Start Session')} <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
         </motion.div>
 
@@ -214,10 +214,10 @@ export function Dashboard() {
             transition={{ duration: 0.4, delay: 0.2 }}
           >
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold tracking-tight">Your Plan</h2>
+              <h2 className="text-xl font-semibold tracking-tight">{t('dashboard.yourPlan', 'Your Plan')}</h2>
               {loading && (
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <Loader2 className="w-3 h-3 animate-spin" /> Syncing
+                  <Loader2 className="w-3 h-3 animate-spin" /> {t('dashboard.syncing', 'Syncing')}
                 </div>
               )}
             </div>
@@ -251,7 +251,7 @@ export function Dashboard() {
                               state: { videoUrl: exercise.video_url } 
                             })}
                           >
-                            <Play className="w-3 h-3 mr-2" /> Start
+                            <Play className="w-3 h-3 mr-2" /> {t('dashboard.startBtn', 'Start')}
                           </Button>
                           {exercise.video_url && (
                             <Button 
@@ -270,9 +270,9 @@ export function Dashboard() {
                 })
               ) : !loading ? (
                 <Card className="col-span-full p-10 text-center border-dashed border-border/50 shadow-none bg-transparent">
-                  <p className="text-muted-foreground mb-4">No exercises assigned right now.</p>
+                  <p className="text-muted-foreground mb-4">{t('dashboard.noExercises', 'No exercises assigned right now.')}</p>
                   <Button variant="outline" size="sm" onClick={() => navigate('/choose-physio')}>
-                    Connect with a Physiotherapist
+                    {t('dashboard.connectPhysio', 'Connect with a Physiotherapist')}
                   </Button>
                 </Card>
               ) : (
@@ -289,7 +289,7 @@ export function Dashboard() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.3 }}
           >
-            <h2 className="text-xl font-semibold tracking-tight">Quick Links</h2>
+            <h2 className="text-xl font-semibold tracking-tight">{t('dashboard.quickLinks', 'Quick Links')}</h2>
             <div className="space-y-3">
               <Card className="p-1 border-border/50 shadow-sm hover:border-primary/30 transition-colors">
                 <Button 
@@ -302,8 +302,8 @@ export function Dashboard() {
                       <Play className="w-5 h-5" />
                     </div>
                     <div className="text-left flex-1">
-                      <p className="font-medium text-sm text-foreground">Library</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">Browse all exercises</p>
+                      <p className="font-medium text-sm text-foreground">{t('dashboard.library', 'Library')}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{t('dashboard.libraryDesc', 'Browse all exercises')}</p>
                     </div>
                     <ArrowRight className="w-4 h-4 text-muted-foreground opacity-50" />
                   </div>
@@ -321,8 +321,8 @@ export function Dashboard() {
                       <BarChart3 className="w-5 h-5" />
                     </div>
                     <div className="text-left flex-1">
-                      <p className="font-medium text-sm text-foreground">Analytics</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">View your progress</p>
+                      <p className="font-medium text-sm text-foreground">{t('dashboard.analytics', 'Analytics')}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{t('dashboard.analyticsDesc', 'View your progress')}</p>
                     </div>
                     <ArrowRight className="w-4 h-4 text-muted-foreground opacity-50" />
                   </div>

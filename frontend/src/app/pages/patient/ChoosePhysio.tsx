@@ -1,6 +1,7 @@
 //C:\Users\soumy\final_2\PHYSIOCHECK\frontend\src\app\pages\patient\ChoosePhysio.tsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { PatientLayout } from '../../components/layouts/PatientLayout';
 import { Card } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
@@ -20,6 +21,7 @@ interface Physiotherapist {
 
 export function ChoosePhysio() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { user, linkPhysio } = useAuth();
   const [physios, setPhysios] = useState<Physiotherapist[]>([]);
   const [loading, setLoading] = useState(true);
@@ -34,18 +36,18 @@ export function ChoosePhysio() {
         if (response.ok) {
           setPhysios(data.physiotherapists);
         } else {
-          toast.error(data.error || 'Failed to fetch physiotherapists');
+          toast.error(data.error || t('common.failedFetchPhysios', 'Failed to fetch physiotherapists'));
         }
       } catch (err) {
         console.error('Error fetching physios:', err);
-        toast.error('Connection error');
+        toast.error(t('common.connectionError', 'Connection error'));
       } finally {
         setLoading(false);
       }
     };
 
     fetchPhysios();
-  }, []);
+  }, [t]);
 
   const handleSelectPhysio = async (physioId: string) => {
     if (!user) return;
@@ -65,15 +67,15 @@ export function ChoosePhysio() {
 
       const data = await response.json();
       if (response.ok) {
-        toast.success('Physiotherapist linked successfully!');
+        toast.success(t('choosePhysio.linkSuccess', 'Physiotherapist linked successfully!'));
         linkPhysio(physioId);
         navigate('/dashboard');
       } else {
-        toast.error(data.error || 'Failed to link physiotherapist');
+        toast.error(data.error || t('choosePhysio.linkError', 'Failed to link physiotherapist'));
       }
     } catch (err) {
       console.error('Error linking physio:', err);
-      toast.error('Connection error');
+      toast.error(t('common.connectionError', 'Connection error'));
     } finally {
       setLinking(null);
     }
@@ -91,9 +93,9 @@ export function ChoosePhysio() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center"
         >
-          <h1 className="text-4xl font-bold mb-4">Choose Your Physiotherapist</h1>
+          <h1 className="text-4xl font-bold mb-4">{t('choosePhysio.title', 'Choose Your Physiotherapist')}</h1>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Select an expert to guide you through your recovery journey. You can change this later in your settings.
+            {t('choosePhysio.subtitle', 'Select an expert to guide you through your recovery journey. You can change this later in your settings.')}
           </p>
         </motion.div>
 
@@ -105,7 +107,7 @@ export function ChoosePhysio() {
         >
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
           <Input
-            placeholder="Search by name..."
+            placeholder={t('choosePhysio.searchPlaceholder', 'Search by name...')}
             className="pl-11 h-12 bg-white shadow-sm border-0 focus-visible:ring-primary/20 rounded-xl"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -115,7 +117,7 @@ export function ChoosePhysio() {
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-4">
             <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-            <p className="text-muted-foreground">Finding experts for you...</p>
+            <p className="text-muted-foreground">{t('choosePhysio.loading', 'Finding experts for you...')}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -140,11 +142,11 @@ export function ChoosePhysio() {
                   <div className="space-y-3 mb-8">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Activity className="w-4 h-4 text-primary" />
-                      <span>Certified Physiotherapist</span>
+                      <span>{t('choosePhysio.certifiedPhysio', 'Certified Physiotherapist')}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <User className="w-4 h-4 text-primary" />
-                      <span>Specialist in Mobility</span>
+                      <span>{t('choosePhysio.specialistMobility', 'Specialist in Mobility')}</span>
                     </div>
                   </div>
 
@@ -156,11 +158,11 @@ export function ChoosePhysio() {
                     {linking === physio.id ? (
                       <div className="flex items-center gap-2">
                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        Linking...
+                        {t('choosePhysio.linking', 'Linking...')}
                       </div>
                     ) : (
                       <>
-                        Select Specialist
+                        {t('choosePhysio.selectSpecialist', 'Select Specialist')}
                         <ChevronRight className="w-5 h-5 ml-2" />
                       </>
                     )}
@@ -174,8 +176,8 @@ export function ChoosePhysio() {
         {!loading && filteredPhysios.length === 0 && (
           <div className="text-center py-20">
             <User className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold mb-2">No physiotherapists found</h3>
-            <p className="text-muted-foreground">Try adjusting your search terms.</p>
+            <h3 className="text-xl font-semibold mb-2">{t('choosePhysio.noPhysiosFound', 'No physiotherapists found')}</h3>
+            <p className="text-muted-foreground">{t('choosePhysio.adjustSearch', 'Try adjusting your search terms.')}</p>
           </div>
         )}
       </div>

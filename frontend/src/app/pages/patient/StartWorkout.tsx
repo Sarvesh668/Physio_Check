@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { PatientLayout } from '../../components/layouts/PatientLayout';
 import { Card } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
@@ -9,6 +10,7 @@ import { Activity, Play, ChevronRight } from 'lucide-react';
 import { motion } from 'motion/react';
 
 export function StartWorkout() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState<ExerciseCategory | 'all'>('all');
 
@@ -37,9 +39,9 @@ export function StartWorkout() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className="text-3xl mb-2">Start Your Workout</h1>
+          <h1 className="text-3xl mb-2">{t('startWorkout.title', 'Start Your Workout')}</h1>
           <p className="text-muted-foreground">
-            Choose an exercise to begin your session with real-time AI feedback
+            {t('startWorkout.subtitle', 'Choose an exercise to begin your session with real-time AI feedback')}
           </p>
         </motion.div>
 
@@ -60,7 +62,9 @@ export function StartWorkout() {
                     : 'bg-muted hover:bg-muted/80'
                 }`}
               >
-                {category === 'all' ? 'All Exercises' : categoryLabels[category]}
+                {category === 'all' 
+                  ? t('startWorkout.allExercises', 'All Exercises') 
+                  : t(`exercises.category.${category}`, categoryLabels[category])}
               </button>
             ))}
           </div>
@@ -78,7 +82,7 @@ export function StartWorkout() {
               className="space-y-4"
             >
               <div className="flex items-center justify-between">
-                <h3 className="text-xl">{categoryLabels[category as ExerciseCategory]}</h3>
+                <h3 className="text-xl">{t(`exercises.category.${category}`, categoryLabels[category as ExerciseCategory])}</h3>
                 <ChevronRight className="w-5 h-5 text-muted-foreground" />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -95,20 +99,20 @@ export function StartWorkout() {
                       <div className="aspect-video bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center relative overflow-hidden">
                         <Activity className="w-12 h-12 text-muted-foreground/30 group-hover:scale-110 transition-transform" strokeWidth={1.5} />
                         <Badge className={`absolute top-3 right-3 ${difficultyColors[exercise.difficulty]}`}>
-                          {exercise.difficulty}
+                          {t(`exercises.difficulty.${exercise.difficulty}`, exercise.difficulty)}
                         </Badge>
                       </div>
                       <div className="p-4">
-                        <h4 className="mb-2 line-clamp-1">{exercise.name}</h4>
+                        <h4 className="mb-2 line-clamp-1">{t(`exercises.${exercise.id}.name`, exercise.name)}</h4>
                         <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                          {exercise.description}
+                          {t(`exercises.${exercise.id}.description`, exercise.description)}
                         </p>
                         <Button
                           variant="outline"
                           className="w-full group-hover:bg-primary group-hover:text-white group-hover:border-primary transition-all"
                         >
                           <Play className="w-4 h-4 mr-2" />
-                          Start
+                          {t('common.start', 'Start')}
                         </Button>
                       </div>
                     </Card>
@@ -138,20 +142,20 @@ export function StartWorkout() {
                   <div className="aspect-video bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center relative overflow-hidden">
                     <Activity className="w-12 h-12 text-muted-foreground/30 group-hover:scale-110 transition-transform" strokeWidth={1.5} />
                     <Badge className={`absolute top-3 right-3 ${difficultyColors[exercise.difficulty]}`}>
-                      {exercise.difficulty}
+                      {t(`exercises.difficulty.${exercise.difficulty}`, exercise.difficulty)}
                     </Badge>
                   </div>
                   <div className="p-4">
-                    <h4 className="mb-2 line-clamp-1">{exercise.name}</h4>
+                    <h4 className="mb-2 line-clamp-1">{t(`exercises.${exercise.id}.name`, exercise.name)}</h4>
                     <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                      {exercise.description}
+                      {t(`exercises.${exercise.id}.description`, exercise.description)}
                     </p>
                     <Button
                       variant="outline"
                       className="w-full group-hover:bg-primary group-hover:text-white group-hover:border-primary transition-all"
                     >
                       <Play className="w-4 h-4 mr-2" />
-                      Start
+                      {t('common.start', 'Start')}
                     </Button>
                   </div>
                 </Card>

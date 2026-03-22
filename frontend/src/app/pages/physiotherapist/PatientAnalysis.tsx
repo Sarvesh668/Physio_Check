@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { PhysiotherapistLayout } from '../../components/layouts/PhysiotherapistLayout';
 import { ExerciseAnalysis } from '../../components/ExerciseAnalysis';
 import { Button } from '../../components/ui/button';
@@ -17,6 +18,7 @@ interface Patient {
 }
 
 export function PatientAnalysis() {
+  const { t } = useTranslation();
   const { patientId } = useParams<{ patientId: string }>();
   const navigate = useNavigate();
   const [patient, setPatient] = useState<Patient | null>(null);
@@ -40,7 +42,7 @@ export function PatientAnalysis() {
             onClick={() => navigate(`/physiotherapist/patient/${patientId}`)}
           >
             <ChevronLeft className="w-4 h-4 mr-2" />
-            Back to Patient Profile
+            {t('physioAnalysis.backToProfile', 'Back to Patient Profile')}
           </Button>
         </div>
 
@@ -57,11 +59,11 @@ export function PatientAnalysis() {
                     <Mail className="w-4 h-4" /> {patient.email}
                   </div>
                   <div className="flex items-center text-muted-foreground gap-2">
-                    <Calendar className="w-4 h-4" /> {patient.onboarding?.age} years
+                    <Calendar className="w-4 h-4" /> {patient.onboarding?.age} {t('common.years', 'years')}
                   </div>
                 </div>
                 <p className="text-sm bg-background/50 inline-block px-3 py-1 rounded-full border border-primary/10">
-                  <span className="font-bold text-primary mr-2">Condition:</span>
+                  <span className="font-bold text-primary mr-2">{t('physioAnalysis.condition', 'Condition')}:</span>
                   {patient.onboarding?.reason}
                 </p>
               </div>
