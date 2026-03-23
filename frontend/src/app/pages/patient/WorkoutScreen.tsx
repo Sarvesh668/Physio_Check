@@ -5,17 +5,17 @@ import i18n from '../../../i18n';
 import { FilesetResolver, PoseLandmarker } from '@mediapipe/tasks-vision';
 import * as faceapi from 'face-api.js';
 
-import { getExerciseConfig, ReferenceData, EXERCISE_IDS } from '../../config/exerciseConfigs'; 
-import { getExerciseById } from '../../data/exercises'; 
+import { getExerciseConfig, ReferenceData, EXERCISE_IDS, ExerciseConfig } from '../../config/exerciseConfigs'; 
+import { fetchCustomExercises } from '../../services/exerciseService'; // NEW IMPORT
 import { getVoiceFeedback } from '../../engine/VoiceFeedback';
 import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
 import { Camera, Pause, Play, StopCircle, Volume2, VolumeX, AlertTriangle, ThumbsUp, ThumbsDown, CheckCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../../context/AuthContext';
+import { handleExerciseCompletion, SessionSummary } from '../../services/workoutSessionService';
 
 // ==========================================
-
 // PHYS CHECK HD015 - PRO WORKFLOW ENGINE
 // ==========================================
 export interface Point { x: number; y: number; }
@@ -42,12 +42,10 @@ export interface TrackerState {
   painScore: number;
 }
 
-// Improved Thumbs Up/Down (Faster & highly reliable using Wrist context)
 const detectGesture = (landmarks: any[]) => {
-    // 22/16 = Right Thumb/Wrist. 21/15 = Left Thumb/Wrist.
     const rThumb = landmarks[22], rWrist = landmarks[16];
     const lThumb = landmarks[21], lWrist = landmarks[15];
-    const threshold = 0.05; // Tightened threshold for snappier response
+    const threshold = 0.05; 
     
     let isUp = false;
     let isDown = false;
@@ -253,7 +251,6 @@ export class PhysioTracker {
           }
 
           if (this.canStart) {
-              // Block rep initiation if we are in menus or countdowns
               if (!this.isWorkoutActive) return this.getCurrentState();
 
               const progress = this.getProgress(smoothKinematics);
@@ -380,34 +377,25 @@ export class PhysioTracker {
       };
   }
 }
-
-import { handleExerciseCompletion, SessionSummary } from '../../services/workoutSessionService';
-
 // ==========================================
 // WORKOUT SCREEN COMPONENT
 // ==========================================
 
 export function WorkoutScreen() {
   const { t } = useTranslation();
-
-  // ==========================================
-  // ⚙️ MANUAL THRESHOLD SETTINGS ⚙️
-  // ==========================================
   const PAIN_TRIGGER_SECONDS = 1.5; 
   const PAIN_SCORE_THRESHOLD = 40;  
-  const GESTURE_HOLD_SECONDS = 0.5; // Made 2.5x faster!
+  const GESTURE_HOLD_SECONDS = 0.5; 
   const REPS_PER_SET = 4;
-  // ==========================================
 
   const { exerciseId } = useParams<{ exerciseId: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-
   const location = useLocation();
   const customVideoUrl = location.state?.videoUrl;
   
-  const exerciseConfig = exerciseId ? getExerciseConfig(exerciseId) : null;
-  const exercise = exerciseId ? getExerciseById(exerciseId) : null;
+  // DYNAMIC EXERCISE CONFIG STATE
+  const [exerciseConfig, setExerciseConfig] = useState<ExerciseConfig | undefined>(undefined);
 
   const [isActive, setIsActive] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
@@ -416,7 +404,6 @@ export function WorkoutScreen() {
   const [startTime, setStartTime] = useState<number | null>(null);
   const [faceModelsLoaded, setFaceModelsLoaded] = useState(false);
   
-  // WORKFLOW STATES
   const [workoutPhase, setWorkoutPhase] = useState<'ALIGNING' | 'COUNTDOWN' | 'EXERCISING' | 'SET_COMPLETED'>('ALIGNING');
   const [countdownVal, setCountdownVal] = useState(3);
   const [showResumeFlash, setShowResumeFlash] = useState(false);
@@ -448,11 +435,20 @@ export function WorkoutScreen() {
   const currentIndex = EXERCISE_IDS.indexOf(exerciseId || '');
   const hasNextExercise = currentIndex !== -1 && currentIndex + 1 < EXERCISE_IDS.length;
 
-  // ==========================================
-  // CRITICAL FIX: RESET STATE ON NEW EXERCISE!
-  // ==========================================
+  // --- DYNAMIC EXERCISE FETCHING ---
   useEffect(() => {
-      // Force nuke the internal state when URL changes so the next exercise starts cleanly at 0 reps!
+      const loadConfig = async () => {
+          let config = getExerciseConfig(exerciseId || '');
+          if (!config && exerciseId) {
+              await fetchCustomExercises();
+              config = getExerciseConfig(exerciseId);
+          }
+          setExerciseConfig(config);
+      };
+      loadConfig();
+  }, [exerciseId]);
+
+  useEffect(() => {
       setIsActive(false);
       setWorkoutPhase('ALIGNING');
       setCompletedAnnounced.current = false;
@@ -484,9 +480,6 @@ export function WorkoutScreen() {
       if (trackerRef.current) trackerRef.current.isWorkoutActive = (workoutPhase === 'EXERCISING');
   }, [workoutPhase]);
 
-  // ==========================================
-  // PHASE 1: ALIGNING -> COUNTDOWN TRIGGER
-  // ==========================================
   useEffect(() => {
       if (workoutPhase === 'ALIGNING' && trackerUIState.canStart && !trackerUIState.currentRepFailed && !trackerUIState.isDiscomfortPaused) {
           setWorkoutPhase('COUNTDOWN');
@@ -496,9 +489,6 @@ export function WorkoutScreen() {
       }
   }, [workoutPhase, trackerUIState.canStart, trackerUIState.currentRepFailed, trackerUIState.isDiscomfortPaused, t]);
 
-  // ==========================================
-  // PHASE 1.5: THE ISOLATED COUNTDOWN LOOP
-  // ==========================================
   useEffect(() => {
       let interval: NodeJS.Timeout;
 
@@ -526,9 +516,6 @@ export function WorkoutScreen() {
       };
   }, [workoutPhase, t]);
 
-  // ==========================================
-  // PHASE 2: FAILED REP VIDEO RESET & RESUME
-  // ==========================================
   useEffect(() => {
       if (trackerUIState.currentRepFailed && !wasFailed.current) {
           wasFailed.current = true;
@@ -547,9 +534,6 @@ export function WorkoutScreen() {
       }
   }, [trackerUIState.currentRepFailed, trackerUIState.canStart, workoutPhase, t]);
 
-  // ==========================================
-  // PHASE 3: SET COMPLETION
-  // ==========================================
   useEffect(() => {
       if (trackerUIState.correctReps >= REPS_PER_SET && workoutPhase !== 'SET_COMPLETED' && !setCompletedAnnounced.current) {
           setCompletedAnnounced.current = true;
@@ -589,8 +573,6 @@ export function WorkoutScreen() {
               runningMode: "VIDEO", numPoses: 1
           });
       } catch (err) {}
-      
-      // Do not overwrite the state if we just reset it via exercise switch
     };
     initVision();
     
@@ -666,13 +648,13 @@ export function WorkoutScreen() {
     const tracker = trackerRef.current;
     const finalState = tracker ? tracker.getCurrentState() : null;
 
-    if (!user) return; // Need user for patientId
+    if (!user) return;
 
     const sessionData: SessionSummary = {
-      id: crypto.randomUUID(), // Unique local ID
+      id: crypto.randomUUID(), 
       patientId: user.id,
       exerciseId: exerciseId || 'unknown',
-      exerciseName: exercise?.name || 'Unknown Exercise',
+      exerciseName: exerciseConfig?.name || 'Unknown Exercise',
       timestamp: new Date().toISOString(),
       duration: durationRef.current,
       total_reps: finalState?.totalReps || 0,
@@ -680,22 +662,30 @@ export function WorkoutScreen() {
       wrong_reps: finalState?.wrongReps || 0,
       accuracy: finalState?.accuracy || 0,
       repHistory: tracker?.repHistory || [],
-      synced: false // Initial state
+      synced: false 
     };
 
-    // Save using the new service module
     await handleExerciseCompletion(sessionData);
 
+    // Map new config to old legacy format for Summary Screen compat
+    const mappedExercise = exerciseConfig ? {
+        id: exerciseConfig.id,
+        name: exerciseConfig.name,
+        description: exerciseConfig.description,
+        videoUrl: customVideoUrl,
+        steps: exerciseConfig.instructions,
+        precautions: exerciseConfig.postureCues
+    } : null;
+
     navigate('/workout-summary', { 
-      state: { metrics: sessionData, exercise }
+      state: { metrics: sessionData, exercise: mappedExercise }
     });
-  }, [navigate, exercise, exerciseId, user]);
+  }, [navigate, exerciseConfig, exerciseId, user, customVideoUrl]);
 
   const handleNextExercise = useCallback(() => {
       if (hasNextExercise) {
           const nextId = EXERCISE_IDS[currentIndex + 1];
           const currentPath = window.location.pathname;
-          // React Router update will trigger the URL change, which triggers the massive Reset useEffect above!
           navigate(currentPath.replace(exerciseId as string, nextId));
       }
   }, [hasNextExercise, currentIndex, exerciseId, navigate]);
@@ -723,9 +713,6 @@ export function WorkoutScreen() {
           if (results.landmarks && results.landmarks.length > 0) {
               const landmarks = results.landmarks[0];
 
-              // ==============================================
-              // GESTURE ZONE (Discomfort Pause ONLY)
-              // ==============================================
               if (tracker.isDiscomfortPaused) {
                   drawColor = "rgba(255, 100, 100, 0.6)"; 
                   
@@ -751,9 +738,6 @@ export function WorkoutScreen() {
                       gestureFramesRef.current = 0; 
                   }
               } 
-              // ==============================================
-              // NORMAL TRACKING LOGIC
-              // ==============================================
               else {
                   const state = tracker.processFrame(landmarks);
                   drawColor = state.currentRepFailed ? "rgb(255, 0, 0)" : (state.canStart ? "rgb(0, 255, 0)" : "rgb(0, 255, 255)");
@@ -842,9 +826,6 @@ export function WorkoutScreen() {
                   }
               }
 
-              // ==============================================
-              // ALWAYS DRAW SKELETON
-              // ==============================================
               const upperBodyIndices = [11, 12, 13, 14, 15, 16, 23, 24, 19, 20, 21, 22]; 
               const connections = [
                   [11, 12], [11, 23], [12, 24], [23, 24], 
@@ -936,7 +917,6 @@ export function WorkoutScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isActive, isPaused]); 
 
-  // ADDED POLITE AUDIO INSTRUCTION HERE!
   const handleStart = () => { 
       setIsActive(true); 
       setStartTime(Date.now()); 
@@ -979,7 +959,6 @@ export function WorkoutScreen() {
       <video ref={videoRef} className="absolute inset-0 w-full h-full object-cover -scale-x-100" playsInline muted />
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full object-cover -scale-x-100 z-10" width={1280} height={720} />
 
-      {/* 3-2-1 COUNTDOWN OVERLAY */}
       <AnimatePresence>
           {workoutPhase === 'COUNTDOWN' && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-40 flex items-center justify-center bg-black/60 backdrop-blur-sm">
@@ -994,7 +973,6 @@ export function WorkoutScreen() {
           )}
       </AnimatePresence>
 
-      {/* RESUME FLASH */}
       <AnimatePresence>
           {showResumeFlash && (
               <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.2 }} className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-40">
@@ -1003,7 +981,6 @@ export function WorkoutScreen() {
           )}
       </AnimatePresence>
 
-      {/* SET COMPLETED MENU (BUTTONS ONLY, NO GESTURES) */}
       <AnimatePresence>
         {workoutPhase === 'SET_COMPLETED' && (
            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 z-40 flex flex-col items-center justify-center bg-black/80 backdrop-blur-md border-8 border-green-600">
@@ -1019,7 +996,6 @@ export function WorkoutScreen() {
         )}
       </AnimatePresence>
 
-      {/* DISCOMFORT AI PAUSE OVERLAY (TRANSLUCENT BG) */}
       <AnimatePresence>
         {trackerUIState.isDiscomfortPaused && (
            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 z-40 flex flex-col items-center justify-center bg-black/40 backdrop-blur-sm border-8 border-red-600">
@@ -1053,7 +1029,6 @@ export function WorkoutScreen() {
         )}
       </AnimatePresence>
 
-      {/* Analytics HUD */}
       <div className="absolute top-6 left-6 flex flex-col gap-4 z-20 pointer-events-none">
         <div className="bg-black/60 backdrop-blur-md px-6 py-4 rounded-2xl border border-white/10 w-48 text-center">
             <p className="text-white/60 text-sm mb-1 uppercase tracking-wider">{t('common.time', 'Time')}</p>
@@ -1071,18 +1046,16 @@ export function WorkoutScreen() {
         </div>
       </div>
 
-      {/* Dynamic Feedback Toast */}
       <div className="absolute top-8 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
          <div className={`px-6 py-3 rounded-full text-lg font-medium shadow-2xl transition-colors duration-300 ${trackerUIState.currentRepFailed ? 'bg-red-500 text-white' : (trackerUIState.status === "OUTBOUND" || trackerUIState.status === "INBOUND" ? 'bg-blue-600 text-white' : 'bg-white/95 text-black')}`}>
              {workoutPhase === 'ALIGNING' ? t('workout.alignWithGuide', "Align with Yellow Guide") : trackerUIState.feedbackMessage}
          </div>
       </div>
 
-      {/* DYNAMIC Reference Video Box */}
       <div className="absolute top-6 right-6 w-64 h-48 bg-gray-900 rounded-2xl border-2 border-white/20 overflow-hidden shadow-2xl z-20 hidden md:block">
         <video 
           ref={referenceVideoRef}
-          src={customVideoUrl || exercise?.videoUrl || "/reference-video.mp4"}
+          src={customVideoUrl || exerciseConfig?.referenceData?.videoUrl || "/reference-video.mp4"}
           loop 
           muted 
           playsInline 
@@ -1091,7 +1064,6 @@ export function WorkoutScreen() {
         <div className="absolute bottom-2 left-2 bg-black/60 px-2 py-1 rounded text-[10px] font-bold text-white uppercase tracking-wider">{t('workout.idealReference', 'Ideal Reference')}</div>
       </div>
 
-      {/* Controls */}
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-3 z-20">
         <Button onClick={isPaused ? handleAppResume : handlePause} size="lg" variant={isPaused ? 'default' : 'secondary'} className="rounded-2xl h-14 px-6">
           {isPaused ? <><Play className="w-5 h-5 mr-2" /> {t('workout.resume', 'Resume')}</> : <><Pause className="w-5 h-5 mr-2" /> {t('workout.pause', 'Pause')}</>}

@@ -1,4 +1,3 @@
-//E:\TechFiesta_Final\Physio_Check\frontend\src\app\App.tsx
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { Signup } from './pages/Signup';
@@ -20,6 +19,7 @@ import { ChoosePhysio } from './pages/patient/ChoosePhysio';
 // Physiotherapist pages
 import { Dashboard } from './pages/physiotherapist/Dashboard';
 import { PatientAnalysis } from './pages/physiotherapist/PatientAnalysis';
+import CreateExercise from './pages/physiotherapist/CreateExercise'; // <-- NEW IMPORT
 
 import { Toaster } from './components/ui/sonner';
 
@@ -195,6 +195,16 @@ function AppRoutes() {
         element={
           <ProtectedRoute allowedRole="physiotherapist">
             <PhysioProfile />
+          </ProtectedRoute>
+        }
+      />
+      
+      {/* --- NEW ROUTE FOR CREATING EXERCISES --- */}
+      <Route
+        path="/physiotherapist/create-exercise"
+        element={
+          <ProtectedRoute allowedRole="physiotherapist">
+            <CreateExercise />
           </ProtectedRoute>
         }
       />

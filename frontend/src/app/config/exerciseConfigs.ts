@@ -292,7 +292,8 @@ export function getExerciseConfig(exerciseId: string): ExerciseConfig | undefine
   return EXERCISE_CONFIGS[exerciseId];
 }
 
-export const EXERCISE_IDS = Object.keys(EXERCISE_CONFIGS);
+// Changed to `let` so we can dynamically update this list
+export let EXERCISE_IDS = Object.keys(EXERCISE_CONFIGS);
 
 // Skeleton connections for rendering
 export const POSE_CONNECTIONS = [
@@ -311,3 +312,14 @@ export const POSE_CONNECTIONS = [
   [POSE_LANDMARKS.LEFT_KNEE, POSE_LANDMARKS.LEFT_ANKLE], [POSE_LANDMARKS.LEFT_ANKLE, POSE_LANDMARKS.LEFT_HEEL],
   [POSE_LANDMARKS.LEFT_ANKLE, POSE_LANDMARKS.LEFT_FOOT_INDEX]
 ];
+
+// --- NEW FUNCTION FOR PHASE 2 ---
+export function registerDynamicExercises(configs: ExerciseConfig[]) {
+  configs.forEach(config => {
+      // Inject the dynamically generated exercise into the dictionary
+      EXERCISE_CONFIGS[config.id] = config;
+  });
+  
+  // Update the exported IDs array so the UI "Next Exercise" buttons still work
+  EXERCISE_IDS = Object.keys(EXERCISE_CONFIGS);
+}

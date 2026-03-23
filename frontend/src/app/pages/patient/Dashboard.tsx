@@ -8,10 +8,11 @@ import { Activity, TrendingUp, Calendar, Play, BarChart3, Target, Video, Externa
 import { motion } from 'motion/react';
 import { useAuth } from '../../context/AuthContext';
 import { retryPendingSync } from '../../services/workoutSessionService';
+import { fetchCustomExercises } from '../../services/exerciseService'; // NEW IMPORT
+import { EXERCISE_CONFIGS } from '../../config/exerciseConfigs'; // NEW IMPORT
 import { toast } from 'sonner';
 import { doc, onSnapshot, collection, getDocs } from 'firebase/firestore';
 import { getFirestoreDb } from '../../config/firebase';
-import { exercises } from '../../data/exercises';
 
 interface AssignedExercise {
   name: string;
@@ -21,11 +22,10 @@ interface AssignedExercise {
 export function Dashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { t } = useTranslation(); // Initialize translation hook
+  const { t } = useTranslation(); 
   const [assignedExercises, setAssignedExercises] = useState<AssignedExercise[]>([]);
   const [loading, setLoading] = useState(true);
   
-  // Real stats from Backend
   const [statsData, setStatsData] = useState({
     sessionsThisWeek: 0,
     streak: 0,
@@ -46,20 +46,23 @@ export function Dashboard() {
     setLoading(true);
     const db = getFirestoreDb();
     
-    // 1. Fetch Assigned Exercises
-    const docRef = doc(db, 'assigned_exercises', user.id);
-    const unsubscribe = onSnapshot(docRef, (docSnap) => {
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        setAssignedExercises(data.exercises || []);
-      } else {
-        setAssignedExercises([]);
-      }
-      setLoading(false);
-    }, (error) => {
-      console.error('Error listening to exercise updates:', error);
-      toast.error(t('dashboard.syncError', 'Failed to sync exercises in real-time'));
-      setLoading(false);
+    // FETCH CUSTOM DYNAMIC EXERCISES INTO MEMORY FIRST!
+    fetchCustomExercises().then(() => {
+        // 1. Fetch Assigned Exercises
+        const docRef = doc(db, 'assigned_exercises', user.id);
+        onSnapshot(docRef, (docSnap) => {
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            setAssignedExercises(data.exercises || []);
+          } else {
+            setAssignedExercises([]);
+          }
+          setLoading(false);
+        }, (error) => {
+          console.error('Error listening to exercise updates:', error);
+          toast.error(t('dashboard.syncError', 'Failed to sync exercises in real-time'));
+          setLoading(false);
+        });
     });
 
     // 2. Fetch Actual Workout Stats
@@ -93,10 +96,9 @@ export function Dashboard() {
 
         const avgAccuracy = totalSessions > 0 ? Math.round(totalAcc / totalSessions) : 0;
 
-        // Calculate Real Consecutive Day Streak
         let currentStreak = 0;
         if (dates.length > 0) {
-          dates.sort((a, b) => b.getTime() - a.getTime()); // Newest first
+          dates.sort((a, b) => b.getTime() - a.getTime()); 
           const uniqueDays = [...new Set(dates.map(d => d.toISOString().split('T')[0]))];
           
           const todayStr = now.toISOString().split('T')[0];
@@ -104,7 +106,6 @@ export function Dashboard() {
           yesterday.setDate(yesterday.getDate() - 1);
           const yesterdayStr = yesterday.toISOString().split('T')[0];
 
-          // Check if streak is currently active
           if (uniqueDays[0] === todayStr || uniqueDays[0] === yesterdayStr) {
             currentStreak = 1;
             let checkDate = new Date(uniqueDays[0]);
@@ -137,8 +138,6 @@ export function Dashboard() {
     };
 
     fetchStats();
-
-    return () => unsubscribe();
   }, [user?.id, t]);
 
   const stats = [
@@ -150,12 +149,17 @@ export function Dashboard() {
 
   const getExerciseTargetId = (dbName: string) => {
     const nameRaw = dbName.toLowerCase();
+    
+    // 1. Try to find the exact match from the injected Dynamic Configs
+    const configs = Object.values(EXERCISE_CONFIGS);
+    const matchedConfig = configs.find(c => c.name.toLowerCase() === nameRaw || c.id === dbName);
+    if (matchedConfig) return matchedConfig.id;
+
+    // 2. Fallbacks for standard exercises
     if (nameRaw.includes('rotator') || nameRaw.includes('cuff')) return 'rotator-cuff';
     if (nameRaw.includes('wall') || nameRaw.includes('slide')) return 'wall-slides';
     if (nameRaw.includes('side') || nameRaw.includes('raise')) return 'side-raises';
     
-    const matched = exercises.find(ex => ex.name.toLowerCase().includes(nameRaw) || ex.id === nameRaw.trim().replace(/\s+/g, '-'));
-    if (matched) return matched.id;
     return dbName.trim().toLowerCase().replace(/\s+/g, '-');
   };
 

@@ -10,6 +10,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 import uuid
 
+# --- NEW IMPORT FOR PHASE 1 ---
+from services.kinematics import generate_exercise_config
+
 app = Flask(__name__)
 
 # UPDATED: Explicitly allow all origins, methods, and headers so Vercel can send JSON POST requests
@@ -326,6 +329,67 @@ def api_get_messages(chat_id):
     except Exception as e:
         print(f"Error fetching messages: {e}")
         return jsonify({"error": str(e)}), 500
+
+
+# ----------------- NEW: DYNAMIC EXERCISE GENERATOR -----------------
+
+@app.route('/api/exercises/generate', methods=['POST'])
+def generate_custom_exercise():
+    data = request.get_json()
+
+    # Extract all parameters sent from the new Physiotherapist UI
+    video_url = data.get('video_url')
+    exercise_name = data.get('name')
+    description = data.get('description', '')
+    instructions = data.get('instructions', [])
+    posture_cues = data.get('posture_cues', [])
+    primary_joints = data.get('primary_joints')  # e.g., ["RIGHT_SHOULDER", "RIGHT_ELBOW", "RIGHT_WRIST"]
+    alignment_joints = data.get('alignment_joints')  # e.g., ["LEFT_SHOULDER", "RIGHT_SHOULDER"]
+    physio_id = data.get('physio_id')
+    side = data.get('side', 'right')
+
+    if not all([video_url, exercise_name, primary_joints, alignment_joints, physio_id]):
+        return jsonify({"error": "Missing required fields for processing"}), 400
+
+    try:
+        # Run the OpenCV/MediaPipe Processing Script
+        reference_data = generate_exercise_config(
+            video_url=video_url,
+            exercise_name=exercise_name,
+            primary_joints=primary_joints,
+            alignment_joints=alignment_joints
+        )
+
+        # Structure the final document
+        exercise_id = str(uuid.uuid4())
+        exercise_doc = {
+            "id": exercise_id,
+            "name": exercise_name,
+            "description": description,
+            "instructions": instructions,
+            "postureCues": posture_cues,
+            "side": side,
+            "physio_id": physio_id,
+            "videoUrl": video_url,
+            "primaryJoint": {
+                "label": f"Custom {side.capitalize()} Side Tracking"
+            },
+            "referenceData": reference_data,
+            "created_at": firestore.SERVER_TIMESTAMP
+        }
+
+        # Save to a central custom_exercises collection
+        db.collection('custom_exercises').document(exercise_id).set(exercise_doc)
+
+        return jsonify({
+            "message": "Exercise analyzed and generated successfully",
+            "exercise_id": exercise_id
+        }), 201
+
+    except Exception as e:
+        print(f"Error generating exercise: {e}")
+        return jsonify({"error": str(e)}), 500
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))

@@ -138,3 +138,5 @@ htmlcov/
 tmp/
 temp/
 uploads/
+
+backend/serviceAccountKey.json

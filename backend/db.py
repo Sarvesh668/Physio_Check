@@ -6,18 +6,20 @@ from datetime import datetime, timezone
 
 load_dotenv()
 
-# Check Render's secure secret folder first, then fall back to local folder
-render_path = '/etc/secrets/serviceAccountKey.json'
-local_path = os.path.join(os.path.dirname(__file__), 'serviceAccountKey.json')
+# FORCE the absolute path to the key in the current directory
+current_dir = os.path.dirname(os.path.abspath(__file__))
+key_path = os.path.join(current_dir, 'serviceAccountKey.json')
 
-cred_path = render_path if os.path.exists(render_path) else local_path
+print(f"Attempting to load Firebase key from EXACT path: {key_path}")
 
 if not firebase_admin._apps:
-    # If the file is missing or broken, this will now intentionally crash and tell us exactly why, 
-    # instead of silently failing and freezing your app!
-    cred = credentials.Certificate(cred_path)
-    firebase_admin.initialize_app(cred)
-    print(f"Firebase initialized successfully using: {cred_path}")
+    # If the file is missing or broken, this will now intentionally crash and tell us exactly why
+    try:
+        cred = credentials.Certificate(key_path)
+        firebase_admin.initialize_app(cred)
+        print("✅ Firebase initialized successfully with the forced local key.")
+    except Exception as e:
+        print(f"❌ CRITICAL FIREBASE INIT ERROR: {e}")
 
 db = firestore.client()
 
